@@ -5,10 +5,16 @@ import discord
 import bot
 
 TOKEN = os.environ.get("DISCORD_TOKEN")
+shappie = bot.Shappie(intents=discord.Intents.all())
 
 
 def main():
-    bot.Shappie(intents=discord.Intents.all()).run(token=TOKEN)
+    shappie.run(token=TOKEN)
+
+
+@shappie.tree.command(name="doot", description="Do the doot")
+async def doot(interaction: discord.Interaction):
+    await interaction.response.send_message("doot doot the dootly doot 🔥")
 
 
 if __name__ == '__main__':
