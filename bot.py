@@ -4,8 +4,13 @@ import typing
 import discord
 
 
+def doot():
+    return "Shappie do the doot doot!"
+
+
 class Shappie(discord.Client):
-    channel = os.environ.get("DISCORD_TEST_CHANNEL")
+    channel = int(os.environ.get("DISCORD_TEST_CHANNEL"))
+    keyword_commands = {"doot": doot}
 
     def __init__(self, *, intents: discord.Intents, **options: typing.Any):
         super().__init__(intents=intents, **options)
@@ -21,5 +26,6 @@ class Shappie(discord.Client):
         if message.channel.id != self.channel:
             return
 
-        if message.content.startswith("doot"):
-            await message.channel.send("Shappie do the doot doot!")
+        for keyword, command in self.keyword_commands.items():
+            if keyword in message.content:
+                await message.channel.send(command())
