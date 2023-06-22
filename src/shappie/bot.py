@@ -1,10 +1,21 @@
 import json
+import os
 import typing
 
 import discord
+import openai
 
+import datastore
 import llm
 import tool
+
+TOKEN = os.environ.get("DISCORD_TOKEN")
+MONGO_URI = os.environ.get("MONGO_URI")
+MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+PERSIST = bool(os.environ.get("PERSIST", False))
+
+openai.api_key = OPENAI_API_KEY
 
 
 def select_tool(
@@ -45,6 +56,13 @@ class Shappie(discord.Client):
         if message.author == self.user:
             return
 
+        if PERSIST:
+            store = datastore.DataStore(MONGO_URI, MONGO_DB_NAME)
+            await store.save_message(message)
+
+            if "http" in message.content:
+                await store.save_link(message)
+
         if message.content == "!killit":
             await message.channel.purge()
 
@@ -78,8 +96,6 @@ class Shappie(discord.Client):
                             "at all costs.",
                 )
             await message.channel.send(response)
-
-        save_message(message)
 
         tools = self._get_relevant_tools(message)
         if len(tools):
