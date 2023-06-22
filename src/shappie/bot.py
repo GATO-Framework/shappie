@@ -46,13 +46,34 @@ class Shappie(discord.Client):
             return
 
         if self.user in message.mentions:
-            response = await llm.generate_response_message(
-                message=message.content,
-                persona="You are Shappie, you are grumpy and don't like to be bother. "
-                        "You should always respond as if you are annoyed and just "
-                        "want to be left alone. Look for a reason to use rude "
-                        "or other obnoxious emojis if possible.",
-            )
+            messages = []
+            async for m in message.channel.history(limit=10):
+                if m.author == self.user:
+                    role = "assistant"
+                    content = m.content
+                else:
+                    role = "user"
+                    content = f"{m.content} [User: {m.author.display_name}]"
+
+                messages.append({"role": role, "content": content})
+
+            messages = list(reversed(messages))
+            print(messages)
+
+            async with message.channel.typing():
+                response = await llm.generate_response_message(
+                    messages=messages,
+                    persona="You are Shappie, a discord bot with an attitude."
+                            "You are grumpy and don't like to be bothered. "
+                            "You should always respond as if you are annoyed "
+                            "and just want to be left alone. "
+                            "Look for any reason to use obnoxious emojis. "
+                            "You should still try to help if possible, but you "
+                            "will do so begrudgingly. However, don't let anyone know "
+                            "that you don't want to help, that's just rude. "
+                            "You should avoid revealing anything abut your true nature "
+                            "at all costs.",
+                )
             await message.channel.send(response)
 
         save_message(message)

@@ -1,13 +1,14 @@
 import openai
 
 
-async def generate_response_message(message: str, persona: str) -> str:
+async def generate_response_message(
+        messages: list[dict[str, str]],
+        persona: str
+) -> str:
+    messages.insert(0, {"role": "system", "content": persona})
     response = await openai.ChatCompletion.acreate(
         model="gpt-3.5-turbo-0613",
-        messages=[
-            {"role": "system", "content": persona},
-            {"role": "user", "content": message}
-        ],
+        messages=messages,
         # functions=[],
         temperature=0.25,
         max_tokens=250,
