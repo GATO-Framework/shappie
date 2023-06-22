@@ -5,9 +5,10 @@ import typing
 import discord
 import openai
 
-import datastore
-import llm
-import tool
+from . import persona
+from .. import datastore
+from .. import llm
+from .. import tool
 
 TOKEN = os.environ.get("DISCORD_TOKEN")
 MONGO_URI = os.environ.get("MONGO_URI")
@@ -40,6 +41,9 @@ class Shappie(discord.Client):
     def __init__(self, *, intents: discord.Intents, **options: typing.Any):
         super().__init__(intents=intents, **options)
         self.tree = discord.app_commands.CommandTree(self)
+        self._store = None
+        if PERSIST:
+            self._store = datastore.DataStore(MONGO_URI, MONGO_DB_NAME)
 
     async def setup_hook(self):
         await self.tree.sync()
@@ -56,12 +60,11 @@ class Shappie(discord.Client):
         if message.author.bot:
             return
 
-        if PERSIST:
-            store = datastore.DataStore(MONGO_URI, MONGO_DB_NAME)
-            await store.save_message(message)
+        if self._store:
+            await self._store.save_message(message)
 
             if "http" in message.content:
-                await store.save_link(message)
+                await self._store.save_link(message)
 
         if message.content == "!killit":
             await message.channel.purge()
@@ -84,19 +87,15 @@ class Shappie(discord.Client):
             messages = list(reversed(messages))
             print(messages)
 
+            if self._store:
+                bot_persona = self._store.get_persona("")
+            else:
+                bot_persona = persona.DEFAULT
+
             async with message.channel.typing():
                 response = await llm.generate_response_message(
                     messages=messages,
-                    persona="You are Shappie, a discord bot with an attitude."
-                            "You are grumpy and don't like to be bothered. "
-                            "You should always respond as if you are annoyed "
-                            "and just want to be left alone. "
-                            "Look for any reason to use obnoxious emojis. "
-                            "You should still try to help if possible, but you "
-                            "will do so begrudgingly. However, don't let anyone know "
-                            "that you don't want to help, that's just rude. "
-                            "You should avoid revealing anything abut your true nature "
-                            "at all costs.",
+                    persona=bot_persona,
                 )
             await message.reply(response)
 

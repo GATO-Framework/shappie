@@ -1,9 +1,11 @@
 import openai
 
+import bot.persona
+
 
 async def generate_response_message(
         messages: list[dict[str, str]],
-        persona: str
+        persona: bot.persona
 ) -> str:
     messages.insert(0, {"role": "system", "content": persona})
     response = await openai.ChatCompletion.acreate(
