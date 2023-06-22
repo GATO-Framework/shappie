@@ -1,9 +1,9 @@
 import json
-import os
 import typing
 
 import discord
 
+import llm
 import tool
 
 
@@ -24,7 +24,6 @@ def save_message(message: discord.Message):
 
 
 class Shappie(discord.Client):
-    channel = int(os.environ.get("DISCORD_TEST_CHANNEL", 0))
     keywords = {"doot"}
 
     def __init__(self, *, intents: discord.Intents, **options: typing.Any):
@@ -46,8 +45,15 @@ class Shappie(discord.Client):
         if message.author == self.user:
             return
 
-        if self.channel and message.channel.id != self.channel:
-            return
+        if self.user in message.mentions:
+            response = await llm.generate_response_message(
+                message=message.content,
+                persona="You are Shappie, you are grumpy and don't like to be bother. "
+                        "You should always respond as if you are annoyed and just "
+                        "want to be left alone. Look for a reason to use rude "
+                        "or other obnoxious emojis if possible.",
+            )
+            await message.channel.send(response)
 
         save_message(message)
 
