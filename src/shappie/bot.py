@@ -45,6 +45,9 @@ class Shappie(discord.Client):
         if message.author == self.user:
             return
 
+        if message.content == "!killit":
+            await message.channel.purge()
+
         if self.user in message.mentions:
             messages = []
             async for m in message.channel.history(limit=10):
