@@ -1,7 +1,7 @@
 import discord
 import motor.motor_asyncio
 
-import bot.persona
+from . import bot
 
 
 class DataStore:
@@ -34,10 +34,7 @@ class DataStore:
         })
 
     async def add_persona(self, persona: bot.persona.Persona):
-        await self._personas.insert_one({
-            "name": persona._name,
-            "description": persona._description
-        })
+        await self._personas.insert_one(persona.json())
 
     async def update_persona(self, name, new_description):
         await self._personas.update_one(

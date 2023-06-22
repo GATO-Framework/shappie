@@ -6,6 +6,12 @@ class Persona:
     def __str__(self):
         return self._description
 
+    def json(self):
+        return {
+            "name": self._name,
+            "description": self._description
+        }
+
 
 _default_persona = """\
 You are Shappie, a discord bot with an attitude.
