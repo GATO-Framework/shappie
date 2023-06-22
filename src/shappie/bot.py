@@ -66,7 +66,10 @@ class Shappie(discord.Client):
         if message.content == "!killit":
             await message.channel.purge()
 
-        if self.user in message.mentions:
+        guild = message.guild
+        shappie_member = guild.get_member(self.user.id)
+        did_mention_role = set(shappie_member.roles).intersection(message.role_mentions)
+        if self.user in message.mentions or did_mention_role:
             messages = []
             async for m in message.channel.history(limit=10):
                 if m.author == self.user:
