@@ -35,8 +35,8 @@ class DataStore:
 
     async def add_persona(self, persona: bot.persona.Persona):
         await self._personas.insert_one({
-            "name": persona.name,
-            "description": persona.description
+            "name": persona._name,
+            "description": persona._description
         })
 
     async def update_persona(self, name, new_description):

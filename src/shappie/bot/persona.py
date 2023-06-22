@@ -1,10 +1,10 @@
 class Persona:
     def __init__(self, name, description):
-        self.name = name
-        self.description = description
+        self._name = name
+        self._description = description
 
     def __str__(self):
-        return self.description
+        return self._description
 
 
 _default_persona = """\
