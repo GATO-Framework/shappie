@@ -1,22 +1,12 @@
 import json
-import os
 import typing
 
 import discord
-import openai
 
-from . import persona
+from . import PERSIST, MONGO_URI, MONGO_DB_NAME, persona
 from .. import datastore
 from .. import llm
 from .. import tool
-
-TOKEN = os.environ.get("DISCORD_TOKEN")
-MONGO_URI = os.environ.get("MONGO_URI")
-MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-PERSIST = bool(os.environ.get("PERSIST", False))
-
-openai.api_key = OPENAI_API_KEY
 
 
 def select_tool(
@@ -29,10 +19,6 @@ def select_tool(
     selected_tool = tools.get_tool(selected_tool_name)
     kwargs = json.loads(kwargs_string)
     return selected_tool, kwargs
-
-
-def save_message(message: discord.Message):
-    pass
 
 
 class Shappie(discord.Client):
