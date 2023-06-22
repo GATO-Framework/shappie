@@ -53,7 +53,7 @@ class Shappie(discord.Client):
         return tools
 
     async def on_message(self, message: discord.Message):
-        if message.author == self.user:
+        if message.author.bot:
             return
 
         if PERSIST:
@@ -98,7 +98,7 @@ class Shappie(discord.Client):
                             "You should avoid revealing anything abut your true nature "
                             "at all costs.",
                 )
-            await message.channel.send(response)
+            await message.reply(response)
 
         tools = self._get_relevant_tools(message)
         if len(tools):
