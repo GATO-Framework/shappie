@@ -24,7 +24,7 @@ def save_message(message: discord.Message):
 
 
 class Shappie(discord.Client):
-    channel = int(os.environ.get("DISCORD_TEST_CHANNEL"), 0)
+    channel = int(os.environ.get("DISCORD_TEST_CHANNEL", 0))
     keywords = {"doot"}
 
     def __init__(self, *, intents: discord.Intents, **options: typing.Any):
