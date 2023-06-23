@@ -1,4 +1,12 @@
 {
+    "doot": {
+        "name": "doot",
+        "description": "Anytime anyone says doot, this function MUST be run.",
+        "parameters": {
+            "type": "object",
+            "properties": {}
+        }
+    },
     "when_to_meet": {
         "name": "when_to_meet",
         "description": "Provide a link to help people decide when to meet. This is meant to help schedule meetings and coordinate activities and events.",
