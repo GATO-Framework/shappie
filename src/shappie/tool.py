@@ -8,7 +8,8 @@ def doot():
 
 
 def when_to_meet():
-    return "https://www.when2meet.com/"
+    return ("People in this server have had luck with when2meet: "
+            "https://www.when2meet.com/")
 
 
 TOOLS = {
