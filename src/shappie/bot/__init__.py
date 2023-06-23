@@ -50,14 +50,14 @@ class Shappie(discord.Client):
         return tools
 
     async def on_message(self, message: discord.Message):
-        if message.author.bot:
-            return
-
         if self._store:
             await self._store.save_message(message)
 
             if "http" in message.content:
                 await self._store.save_link(message)
+
+        if message.author.bot:
+            return
 
         if message.content == "!killit":
             await message.channel.purge()
@@ -68,7 +68,7 @@ class Shappie(discord.Client):
         did_mention_bot = self.user in message.mentions or did_mention_role
         if did_mention_bot:
             if self._store:
-                bot_persona = self._store.get_persona("")
+                bot_persona = await self._store.get_persona("")
             else:
                 bot_persona = persona.DEFAULT
 

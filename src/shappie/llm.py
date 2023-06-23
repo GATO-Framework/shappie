@@ -35,7 +35,6 @@ async def generate_response_message(
     You will see [User: <username>] for each message, but this is just for context. 
     Take on the following persona when responding to messages:
     """) + f"\n\n{persona}"
-    print(system_prompt)
     messages = [
         {"role": "system", "content": system_prompt},
         *await _get_channel_history(message.channel),

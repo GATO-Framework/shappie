@@ -8,7 +8,7 @@ class DataStore:
     def __init__(self, url, db_name):
         self._client = motor.motor_asyncio.AsyncIOMotorClient(url)
         self._db: motor.motor_asyncio.AsyncIOMotorDatabase = self._client[db_name]
-        self._logs = self._get_collection("logs")
+        self._messages = self._get_collection("messages")
         self._links = self._get_collection("links")
         self._personas = self._get_collection("personas")
 
@@ -16,7 +16,7 @@ class DataStore:
         return self._db[collection_name]
 
     async def save_message(self, message: discord.Message):
-        await self._logs.insert_one({
+        await self._messages.insert_one({
             "server": message.guild.name,
             "channel": message.channel.name,
             "sender": message.author.name,
@@ -48,6 +48,6 @@ class DataStore:
     async def get_persona(self, name):
         doc = await self._personas.find_one({"name": name})
         if doc:
-            return persona.Persona(doc["name"], doc["description"])
+            return bot.persona.Persona(doc["name"], doc["description"])
         else:
             return None
