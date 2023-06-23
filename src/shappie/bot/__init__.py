@@ -70,7 +70,7 @@ class Shappie(discord.Client):
         #     await message.channel.purge()
 
         if self._store:
-            bot_persona = await self._store.get_persona("")
+            bot_persona = await self._store.get_persona("default")
         else:
             bot_persona = persona.DEFAULT
 
