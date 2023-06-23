@@ -40,12 +40,20 @@ async def generate_response_message(
         {"role": "system", "content": system_prompt},
         *await _get_channel_history(message.channel),
     ]
-    response = await openai.ChatCompletion.acreate(
-        model="gpt-3.5-turbo-0613",
-        messages=messages,
-        functions=functions or [],
-        temperature=0.25,
-        max_tokens=250,
-    )
+    if functions:
+        response = await openai.ChatCompletion.acreate(
+            model="gpt-3.5-turbo-0613",
+            messages=messages,
+            functions=functions or [],
+            temperature=0.25,
+            max_tokens=250,
+        )
+    else:
+        response = await openai.ChatCompletion.acreate(
+            model="gpt-3.5-turbo-0613",
+            messages=messages,
+            temperature=0.25,
+            max_tokens=250,
+        )
 
     return response["choices"][0]["message"]
