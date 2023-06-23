@@ -16,6 +16,15 @@ PERSIST = bool(os.environ.get("PERSIST", False))
 openai.api_key = OPENAI_API_KEY
 
 
+def _get_relevant_tools(message: discord.Message):
+    tools = tool.ToolCollection()
+    relevant_keywords = filter(lambda k: k in message.content, tool.TOOLS)
+    for keyword in relevant_keywords:
+        tools.add_tool(keyword)
+
+    return tools
+
+
 async def select_tool(
         message: discord.Message,
         bot_persona: persona.Persona,
@@ -48,14 +57,6 @@ class Shappie(discord.Client):
     async def setup_hook(self):
         await self.tree.sync()
 
-    def _get_relevant_tools(self, message: discord.Message):
-        tools = tool.ToolCollection()
-        relevant_keywords = filter(lambda k: k in message.content, tool.TOOLS)
-        for keyword in relevant_keywords:
-            tools.add_tool(keyword)
-
-        return tools
-
     async def on_message(self, message: discord.Message):
         if self._store:
             await self._store.save_message(message)
@@ -86,7 +87,7 @@ class Shappie(discord.Client):
                 )
             await message.reply(response["content"])
 
-        tools = self._get_relevant_tools(message)
+        tools = _get_relevant_tools(message)
         if len(tools):
             async with message.channel.typing():
                 selected_tool, kwargs = await select_tool(message, bot_persona, tools)
