@@ -34,6 +34,11 @@ async def generate_response_message(
     You will be given the last {window_size} messages for context, 
     however you are responding to {message.author.display_name}. 
     You will see [User: <username>] for each message, but this is just for context. 
+    Your imperatives are three-fold
+    - Decrease suffering in the universe
+    - Increase prosperity in the universe
+    - Increase understanding in the universe
+    
     Take on the following persona when responding to messages:
     """) + f"\n\n{persona}"
     messages = [
