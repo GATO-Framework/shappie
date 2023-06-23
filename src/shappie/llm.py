@@ -25,8 +25,9 @@ async def _get_channel_history(
 
 async def generate_response_message(
         message: discord.Message,
-        persona: bot.persona.Persona
-) -> str:
+        persona: bot.persona.Persona,
+        functions=None,
+) -> dict[str, typing.Any]:
     window_size = 10
     system_prompt = inspect.cleandoc(f"""
     You are a discord bot. 
@@ -42,9 +43,9 @@ async def generate_response_message(
     response = await openai.ChatCompletion.acreate(
         model="gpt-3.5-turbo-0613",
         messages=messages,
-        # functions=[],
+        functions=functions or [],
         temperature=0.25,
         max_tokens=250,
     )
 
-    return response["choices"][0]["message"]["content"]
+    return response["choices"][0]["message"]

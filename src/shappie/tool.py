@@ -1,3 +1,5 @@
+import json
+import pathlib
 import typing
 
 
@@ -5,24 +7,38 @@ def doot():
     return "Shappie do the doot doot!"
 
 
+def when_to_meet():
+    return "https://www.when2meet.com/"
+
+
 TOOLS = {
-    "doot": doot
+    "doot": doot,
+    "meeting": when_to_meet,
+    "schedule": when_to_meet,
 }
 
 
 class ToolCollection:
     def __init__(self):
-        self._tools = {}
+        self._tools: dict[str, typing.Callable] = {}
+        self._tools_by_func: dict[str, typing.Callable] = {}
 
     def __len__(self):
         return len(self._tools)
 
     def schema(self):
-        pass
+        path = pathlib.Path(__file__).parent / "tool-schema.json"
+        with open(path) as file:
+            data = json.load(file)
+        tool_schema = []
+        for tool in set(self._tools.values()):
+            tool_schema.append(data[tool.__name__])
+        return tool_schema
 
-    def add_tool(self, tool_name: str):
-        tool = TOOLS[tool_name]
-        self._tools[tool_name] = tool
+    def add_tool(self, keyword: str):
+        tool = TOOLS[keyword]
+        self._tools[keyword] = tool
+        self._tools_by_func[tool.__name__] = tool
 
     def get_tool(self, tool_name) -> typing.Callable:
-        return self._tools[tool_name]
+        return self._tools_by_func[tool_name]

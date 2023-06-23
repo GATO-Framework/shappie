@@ -16,21 +16,28 @@ PERSIST = bool(os.environ.get("PERSIST", False))
 openai.api_key = OPENAI_API_KEY
 
 
-def select_tool(
+async def select_tool(
         message: discord.Message,
+        bot_persona: persona.Persona,
         tools: tool.ToolCollection,
-) -> tuple[typing.Callable, dict]:
-    # TODO: Use a language model based on the message content
-    selected_tool_name, kwargs_string = "doot", "{}"
+) -> tuple[typing.Optional[typing.Callable], typing.Optional[dict]]:
+    response = await llm.generate_response_message(
+        message=message,
+        persona=bot_persona,
+        functions=tools.schema(),
+    )
+    print(response)
+    function_call = response.get("function_call")
+    if function_call:
+        tool_name = function_call["name"]
+        tool_args = json.loads(function_call["arguments"])
 
-    selected_tool = tools.get_tool(selected_tool_name)
-    kwargs = json.loads(kwargs_string)
-    return selected_tool, kwargs
+        return tools.get_tool(tool_name), tool_args
+
+    return None, None
 
 
 class Shappie(discord.Client):
-    keywords = {"doot"}
-
     def __init__(self, *, intents: discord.Intents, **options: typing.Any):
         super().__init__(intents=intents, **options)
         self.tree = discord.app_commands.CommandTree(self)
@@ -43,7 +50,7 @@ class Shappie(discord.Client):
 
     def _get_relevant_tools(self, message: discord.Message):
         tools = tool.ToolCollection()
-        relevant_keywords = filter(lambda k: k in message.content, self.keywords)
+        relevant_keywords = filter(lambda k: k in message.content, tool.TOOLS)
         for keyword in relevant_keywords:
             tools.add_tool(keyword)
 
@@ -59,28 +66,30 @@ class Shappie(discord.Client):
         if message.author.bot:
             return
 
-        if message.content == "!killit":
-            await message.channel.purge()
+        # if message.content == "!killit":
+        #     await message.channel.purge()
+
+        if self._store:
+            bot_persona = await self._store.get_persona("")
+        else:
+            bot_persona = persona.DEFAULT
 
         guild = message.guild
         shappie_member = guild.get_member(self.user.id)
         did_mention_role = set(shappie_member.roles).intersection(message.role_mentions)
         did_mention_bot = self.user in message.mentions or did_mention_role
         if did_mention_bot:
-            if self._store:
-                bot_persona = await self._store.get_persona("")
-            else:
-                bot_persona = persona.DEFAULT
-
             async with message.channel.typing():
                 response = await llm.generate_response_message(
                     message=message,
                     persona=bot_persona,
                 )
-            await message.reply(response)
+            await message.reply(response["content"])
 
         tools = self._get_relevant_tools(message)
         if len(tools):
-            selected_tool, kwargs = select_tool(message, tools)
-            result = selected_tool(**kwargs)
-            await message.channel.send(result)
+            async with message.channel.typing():
+                selected_tool, kwargs = await select_tool(message, bot_persona, tools)
+                if selected_tool:
+                    result = selected_tool(**kwargs)
+                    await message.channel.send(result)
