@@ -3,12 +3,14 @@ import os
 import discord
 
 from shappie.bot import Shappie
+from keep_alive import keep_alive
 
 TOKEN = os.environ.get("DISCORD_TOKEN")
 shappie = Shappie(intents=discord.Intents.all())
 
 
 def main():
+    keep_alive()
     shappie.run(token=TOKEN)
 
 
