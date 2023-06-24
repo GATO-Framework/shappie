@@ -12,6 +12,12 @@ def when_to_meet():
             "https://www.when2meet.com/")
 
 
+def get_layer_info(layer: int):
+    path = pathlib.Path(__file__) / "layers" / f"layer-{layer}.md"
+    with open(path) as file:
+        return file.read()
+
+
 TOOLS = {
     "doot": doot,
     "meeting": when_to_meet,
