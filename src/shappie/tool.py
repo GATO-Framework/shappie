@@ -1,21 +1,29 @@
 import json
 import pathlib
 import typing
+from . import arxiv
 
 
-def doot():
+async def doot():
     return "Shappie do the doot doot!"
 
 
-def when_to_meet():
+async def when_to_meet():
     return ("People in this server have had luck with when2meet: "
             "https://www.when2meet.com/")
+
+
+async def paper(query):
+    results = await arxiv.search(query)
+    results = [result for result in results if result["arxiv_link"]]
+    return arxiv.format_results(results)
 
 
 TOOLS = {
     "doot": doot,
     "meeting": when_to_meet,
     "schedule": when_to_meet,
+    "paper": paper,
 }
 
 

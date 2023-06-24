@@ -14,5 +14,18 @@
             "type": "object",
             "properties": {}
         }
+    },
+    "paper": {
+        "name": "paper",
+        "description": "Initiate a search on arXiv for a paper with a query. This is meant to help people find relevant papers to read.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The query to search for."
+                }
+            }
+        }
     }
 }

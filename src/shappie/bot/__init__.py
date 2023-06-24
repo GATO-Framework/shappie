@@ -90,7 +90,7 @@ class Shappie(discord.Client):
                 )
                 if did_select_tool:
                     selected_tool, kwargs = values
-                    result = selected_tool(**kwargs)
+                    result = await selected_tool(**kwargs)
                     await message.channel.send(result)
                 else:
                     content, _ = values
