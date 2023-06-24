@@ -2,10 +2,10 @@ import os
 
 import discord
 
-from shappie.bot import Shappie
+from shappie.bot import ShappieClient
 
 TOKEN = os.environ.get("DISCORD_TOKEN")
-shappie = Shappie(intents=discord.Intents.all())
+shappie = ShappieClient(intents=discord.Intents.all())
 
 
 def main():
