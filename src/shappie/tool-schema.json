@@ -17,7 +17,7 @@
     },
     "paper": {
         "name": "paper",
-        "description": "Initiate a search on arXiv for a paper with a query. This is meant to help people find relevant papers to read.",
+        "description": "Initiate a search on arXiv for a paper with a query. This is meant to help people find relevant papers to read. This is ONLY meant to run IF the user is talking to the bot directly.",
         "parameters": {
             "type": "object",
             "properties": {
