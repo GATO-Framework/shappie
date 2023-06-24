@@ -29,7 +29,8 @@ async def select_tool(
         message: discord.Message,
         bot_persona: persona.Persona,
         tools: tool.ToolCollection,
-) -> tuple[typing.Optional[typing.Callable], typing.Optional[dict]]:
+) -> tuple[bool, typing.Callable, dict]:
+    print(tools.schema())
     response = await llm.generate_response_message(
         message=message,
         persona=bot_persona,
@@ -41,9 +42,9 @@ async def select_tool(
         tool_name = function_call["name"]
         tool_args = json.loads(function_call["arguments"])
 
-        return tools.get_tool(tool_name), tool_args
+        return True, tools.get_tool(tool_name), tool_args
 
-    return None, None
+    return False, response["content"], {}
 
 
 class Shappie(discord.Client):
@@ -67,30 +68,37 @@ class Shappie(discord.Client):
         if message.author.bot:
             return
 
-        # if message.content == "!killit":
-        #     await message.channel.purge()
-
         if self._store:
             bot_persona = await self._store.get_persona("default")
         else:
             bot_persona = persona.DEFAULT
 
+        did_mention_bot = self.user in message.mentions
         guild = message.guild
-        shappie_member = guild.get_member(self.user.id)
-        did_mention_role = set(shappie_member.roles).intersection(message.role_mentions)
-        did_mention_bot = self.user in message.mentions or did_mention_role
+        if guild:
+            shappie_member = guild.get_member(self.user.id)
+            did_mention_role = set(shappie_member.roles).intersection(
+                message.role_mentions
+            )
+            did_mention_bot = did_mention_bot or did_mention_role
         if did_mention_bot:
             async with message.channel.typing():
-                response = await llm.generate_response_message(
+                content = await llm.generate_response_message(
                     message=message,
                     persona=bot_persona,
                 )
-            await message.reply(response["content"])
+            await message.reply(content["content"])
 
         tools = _get_relevant_tools(message)
         if len(tools):
             async with message.channel.typing():
-                selected_tool, kwargs = await select_tool(message, bot_persona, tools)
-                if selected_tool:
+                did_select_tool, *values = await select_tool(
+                    message, bot_persona, tools
+                )
+                if did_select_tool:
+                    selected_tool, kwargs = values
                     result = selected_tool(**kwargs)
                     await message.channel.send(result)
+                else:
+                    content, _ = values
+                    await message.channel.send(content)

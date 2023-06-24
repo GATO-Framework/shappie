@@ -16,21 +16,19 @@ class DataStore:
         return self._db[collection_name]
 
     async def save_message(self, message: discord.Message):
-        if not message.guild:
-            await self._messages.insert_one({
-                "server": message.guild.name,
-                "channel": message.channel.name,
-                "sender": message.author.name,
-                "message": message.content,
-                "time": message.created_at,
-            })
-        else:
-            await self._messages.insert_one({
-                "channel": message.channel.name,
-                "sender": message.author.name,
-                "message": message.content,
-                "time": message.created_at,
-            })
+        channel = message.channel
+        channel_name = "dm" if isinstance(channel, discord.DMChannel) else channel.name
+
+        payload = {
+            "channel": channel_name,
+            "sender": message.author.name,
+            "message": message.content,
+            "time": message.created_at,
+        }
+        if message.guild:
+            payload["server"]: message.guild.name
+
+        await self._messages.insert_one(payload)
 
     async def save_link(self, message: discord.Message):
         await self._links.insert_one({
