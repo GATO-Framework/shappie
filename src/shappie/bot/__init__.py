@@ -91,10 +91,10 @@ class Shappie(discord.Client):
                 if did_select_tool:
                     selected_tool, kwargs = values
                     result = await selected_tool(**kwargs)
-                    await message.channel.send(result)
+                    await message.reply(result)
                 else:
                     content, _ = values
-                    await message.channel.send(content)
+                    await message.reply(content)
         elif did_mention_bot:
             async with message.channel.typing():
                 content = await llm.generate_response_message(
