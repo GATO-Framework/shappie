@@ -19,7 +19,7 @@ def _format_chat_messages(
 
         chat_messages.append({"role": role, "content": content})
 
-    return reversed(chat_messages)
+    return chat_messages
 
 
 async def get_completion(
@@ -27,18 +27,19 @@ async def get_completion(
         functions=None,
         temperature: float = 0.25,
         max_tokens: float = 500,
+        model: str = "gpt-3.5-turbo-0613",
 ) -> dict[str, typing.Any]:
     if functions:
         response = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo-0613",
+            model=model,
             messages=messages,
-            functions=functions or [],
+            functions=functions,
             temperature=temperature,
             max_tokens=max_tokens,
         )
     else:
         response = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo-0613",
+            model=model,
             messages=messages,
             temperature=temperature,
             max_tokens=max_tokens,
@@ -48,7 +49,7 @@ async def get_completion(
 
 
 async def generate_response_message(
-        messages: typing.Iterable[discord.Message],
+        messages: list[discord.Message],
         persona: bot.persona.Persona,
         additional_context: str = "",
         functions=None,
@@ -67,7 +68,9 @@ async def generate_response_message(
     - Increase understanding in the universe
 
     Take on the following persona when responding to messages:
-    """) + f"\n\n{persona}" + f"\n\nAdditional Context:\n{additional_context}"
+    """) + f"\n{persona}"
+    if additional_context:
+        system_prompt += f"\nAdditional Context:\n{additional_context}"
     messages = [
         {"role": "system", "content": system_prompt},
         *_format_chat_messages(messages)
