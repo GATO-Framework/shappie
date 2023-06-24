@@ -22,6 +22,7 @@ TOOLS = {
     "doot": doot,
     "meeting": when_to_meet,
     "schedule": when_to_meet,
+    "layer": get_layer_info,
 }
 
 
