@@ -1,18 +1,34 @@
 {
-    "doot": {
-        "name": "doot",
-        "description": "If the word doot appears in the message, this function MUST be run.",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-        }
-    },
-    "when_to_meet": {
-        "name": "when_to_meet",
-        "description": "Provide a link to help people decide when to meet. This is meant to help schedule meetings and coordinate activities and events.",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-        }
+  "doot": {
+    "name": "doot",
+    "description": "If the word doot appears in the message, this function MUST be run.",
+    "parameters": {
+      "type": "object",
+      "properties": {}
     }
+  },
+  "when_to_meet": {
+    "name": "when_to_meet",
+    "description": "Provide a link to help people decide when to meet. This is meant to help schedule meetings and coordinate activities and events.",
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "get_layer_info": {
+    "name": "get_layer_info",
+    "description": "Get information for a specific layer in the GATO framework. Access this function if the user has expressed interest in learning more about that layer or wants detailed information about the layer.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "layer": {
+          "type": "integer",
+          "description": "The layer that the user is interested in"
+        }
+      },
+      "required": [
+        "layer"
+      ]
+    }
+  }
 }
