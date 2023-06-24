@@ -1,7 +1,7 @@
 {
     "doot": {
         "name": "doot",
-        "description": "Anytime anyone says doot, this function MUST be run.",
+        "description": "If the word doot appears in the message, this function MUST be run.",
         "parameters": {
             "type": "object",
             "properties": {}
