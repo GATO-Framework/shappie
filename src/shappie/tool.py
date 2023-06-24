@@ -13,7 +13,9 @@ async def when_to_meet():
             "https://www.when2meet.com/")
 
 
-async def paper(query):
+async def paper(query=''):
+    if query == '':
+        return None
     results = await arxiv.search(query)
     results = [result for result in results if result["arxiv_link"]]
     return arxiv.format_results(results)

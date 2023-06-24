@@ -91,7 +91,8 @@ class Shappie(discord.Client):
                 if did_select_tool:
                     selected_tool, kwargs = values
                     result = await selected_tool(**kwargs)
-                    await message.reply(result)
+                    if result:
+                        await message.reply(result)
                 else:
                     content, _ = values
                     await message.reply(content)
