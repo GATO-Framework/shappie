@@ -1,7 +1,7 @@
 import json
 import pathlib
 import typing
-from tool_utils import arxiv
+from .tool_utils import arxiv
 
 
 async def doot():
