@@ -81,13 +81,6 @@ class Shappie(discord.Client):
                 message.role_mentions
             )
             did_mention_bot = did_mention_bot or did_mention_role
-        if did_mention_bot:
-            async with message.channel.typing():
-                content = await llm.generate_response_message(
-                    message=message,
-                    persona=bot_persona,
-                )
-            await message.reply(content["content"])
 
         tools = _get_relevant_tools(message)
         if len(tools):
@@ -102,3 +95,10 @@ class Shappie(discord.Client):
                 else:
                     content, _ = values
                     await message.channel.send(content)
+        elif did_mention_bot:
+            async with message.channel.typing():
+                content = await llm.generate_response_message(
+                    message=message,
+                    persona=bot_persona,
+                )
+            await message.reply(content["content"])
