@@ -1,0 +1,14 @@
+## Layer 6: International Treaty
+
+The Global Alignment Taxonomy and Omnibus (GATO) can be structured similarly to CERN, a successful international scientific consortium, to ensure widespread adoption and collaboration. By creating an international consortium that promotes collaboration, shared resources, and capacity building, nations can collectively address the challenges of AI alignment and control, while also harnessing the potential benefits of AI for the betterment of humanity.
+
+Here are some key aspects of how GATO could function at the international level:
+
+1. **Membership and Governance:** GATO would be governed by its member states, which contribute financially to the organization's budget according to their GDP. Decisions would be made by a governing body consisting of representatives from each member state. This body would define GATO's scientific, technical, and administrative policies.
+2. **Collaborative Research:** GATO would provide a platform for scientists, engineers, and AI experts from around the world to work together on AI alignment and control challenges. The collaborative environment would foster knowledge exchange, accelerate scientific discovery, and ensure the development of safe, beneficial AI technologies.
+3. **Shared Resources and Infrastructure:** Member states would contribute to the funding and maintenance of GATO's state-of-the-art facilities, equipment, and infrastructure. This would allow researchers from participating countries to access cutting-edge technology and resources needed for AI alignment research.
+4. **Education and Training:** GATO would offer numerous educational and training programs for scientists, engineers, and students in the field of AI alignment and control. These programs would help build capacity in the field, fostering a global community of skilled researchers and experts.
+5. **Open Science and Knowledge Sharing:** GATO would be committed to open science, ensuring that the results of its research are freely available to the global scientific community. This would promote transparency, encourage collaboration, and accelerate the pace of scientific discovery in AI alignment and control.
+6. **International Cooperation:** GATO would collaborate with various international organizations, research institutes, and industries to advance its mission of AI alignment and control. These partnerships would help expand the scope and impact of GATO's research while fostering a spirit of global cooperation and collaboration.
+
+By modeling GATO after the successful structure of CERN, we can create an international consortium focused on AI alignment and control that encourages widespread adoption, collaboration, and knowledge sharing. This approach would help nations work together to address the challenges and harness the benefits of AI for the betterment of humanity.
