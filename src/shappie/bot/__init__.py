@@ -57,4 +57,4 @@ class ShappieClient(discord.Client):
             async with message.channel.typing():
                 content = await bot_interaction.respond_to_message()
             for chunk in _split_string_into_chunks(content):
-                await message.channel.send(chunk)
+                await message.reply(chunk)
