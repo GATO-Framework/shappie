@@ -19,7 +19,7 @@ class Interaction:
 
         self._tools = tool.ToolCollection()
         self._keywords = set(
-            filter(lambda k: k in self._message.content, tool.TOOLS))
+            filter(lambda k: k in self._message.content.lower(), tool.TOOLS))
         self._add_relevant_tools()
 
     def should_respond(self):
