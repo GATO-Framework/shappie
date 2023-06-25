@@ -5,12 +5,18 @@ from .tool_utils import arxiv
 
 
 async def doot():
-    return "Shappie do the doot doot!"
+    return "You should say something like \"I do the doot doot!\""
 
 
 async def when_to_meet():
     return ("People in this server have had luck with when2meet: "
             "https://www.when2meet.com/")
+
+
+def get_layer_info(layer: int):
+    path = pathlib.Path(__file__).parent.parent / "layers" / f"layer-{layer}.md"
+    with open(path) as file:
+        return file.read()
 
 
 async def paper(query=''):
@@ -25,6 +31,7 @@ TOOLS = {
     "doot": doot,
     "meeting": when_to_meet,
     "schedule": when_to_meet,
+    "layer": get_layer_info,
     "paper": paper,
 }
 
