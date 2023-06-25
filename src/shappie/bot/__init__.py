@@ -25,6 +25,11 @@ def _did_mention_bot(message: discord.Message, bot_user: discord.ClientUser) -> 
     return False
 
 
+def _split_string_into_chunks(input_string, chunk_size=2000):
+    return [input_string[i:i+chunk_size]
+            for i in range(0, len(input_string), chunk_size)]
+
+
 class ShappieClient(discord.Client):
     def __init__(self, *, intents: discord.Intents, **options: typing.Any):
         super().__init__(intents=intents, **options)
@@ -50,4 +55,5 @@ class ShappieClient(discord.Client):
         if _did_mention_bot(message, self.user):
             await message.reply(content)
         else:
-            await message.channel.send(content[:2000])
+            for chunk in _split_string_into_chunks(content):
+                await message.channel.send(chunk)
