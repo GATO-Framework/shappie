@@ -3,6 +3,6 @@ services:
   shappie:
     build: .
     image: shappie
-    environment:
-      - ENV_FILE=.env
+    env_file:
+      - .env
     restart: unless-stopped
