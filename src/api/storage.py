@@ -1,3 +1,6 @@
+import dataclasses
+import typing
+
 import discord
 import motor.motor_asyncio
 
@@ -40,7 +43,7 @@ class DataStore:
         })
 
     async def add_persona(self, persona: model.persona.Persona):
-        await self._personas.insert_one(persona.json())
+        await self._personas.insert_one(dataclasses.asdict(persona))
 
     async def update_persona(self, name, new_description):
         await self._personas.update_one(
@@ -58,11 +61,9 @@ class DataStore:
         else:
             return None
 
-    async def list_personas(self) -> list[model.persona.Persona]:
-        return [
-            model.persona.Persona(
+    async def list_personas(self) -> typing.AsyncIterable[model.persona.Persona]:
+        async for doc in self._personas.find():
+            yield model.persona.Persona(
                 doc["name"],
                 doc["description"],
             )
-            async for doc in self._personas.find()
-        ]

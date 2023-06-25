@@ -68,7 +68,7 @@ async def generate_response_message(
     - Increase understanding in the universe
 
     Take on the following persona when responding to messages:
-    """) + f"\n{persona}"
+    """) + f"\n{persona.description}"
     if additional_context:
         system_prompt += f"\nAdditional Context:\n{additional_context}"
     messages = [
