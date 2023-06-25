@@ -17,7 +17,8 @@ class DataStore:
 
     async def save_message(self, message: discord.Message):
         channel = message.channel
-        channel_name = "dm" if isinstance(channel, discord.DMChannel) else channel.name
+        channel_name = "dm" if isinstance(
+            channel, discord.DMChannel) else channel.name
 
         payload = {
             "channel": channel_name,

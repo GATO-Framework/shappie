@@ -8,44 +8,44 @@ from . import bot, datastore, llm, tool
 
 class Interaction:
 
-    def __init__(self, store: datastore.DataStore | None = None):
-        self._persona = None
-        self._tools = None
+    def __init__(
+            self,
+            message: discord.Message,
+            store: datastore.DataStore | None = None,
+    ):
+        self._message = message
+        self._persona = bot.persona.DEFAULT
         self._store = store
 
-    def _add_relevant_tools(self, message: discord.Message):
-        keywords = filter(lambda k: k in message.content, tool.TOOLS)
-        for keyword in keywords:
+        self._tools = tool.ToolCollection()
+        self._keywords = set(
+            filter(lambda k: k in self._message.content, tool.TOOLS))
+        self._add_relevant_tools()
+
+    def should_respond(self):
+        return len(self._keywords) > 0
+
+    def _add_relevant_tools(self):
+        for keyword in self._keywords:
             self._tools.add_tool(keyword)
 
-    async def save_data(self, message: discord.Message):
+    async def save_data(self):
         if not self._store:
             return
 
-        await self._store.save_message(message)
+        await self._store.save_message(self._message)
 
-        if "http" in message.content:
-            await self._store.save_link(message)
+        if "http" in self._message.content:
+            await self._store.save_link(self._message)
 
-    async def _get_persona(self, name) -> bot.persona.Persona:
-        if self._store:
-            return await self._store.get_persona(name)
-        else:
-            return bot.persona.DEFAULT
-
-    async def _get_channel_history(
-            self,
-            channel: discord.TextChannel,
-            limit=10,
-    ) -> list[discord.Message]:
-        history = channel.history(limit=limit)
+    async def _get_channel_history(self, limit=10) -> list[discord.Message]:
+        history = self._message.channel.history(limit=limit)
         return list(reversed([message async for message in history]))
 
     async def _select_tool(
             self,
-            message: discord.Message,
     ) -> tuple[bool, typing.Callable, dict]:
-        history = await self._get_channel_history(message.channel)
+        history = await self._get_channel_history()
         response = await llm.generate_response_message(
             messages=history,
             persona=self._persona,
@@ -60,8 +60,8 @@ class Interaction:
 
         return False, response["content"], {}
 
-    async def _respond_to_message_without_tools(self, message: discord.Message) -> str:
-        history = await self._get_channel_history(message.channel)
+    async def _respond_to_message_without_tools(self) -> str:
+        history = await self._get_channel_history()
         response = await llm.generate_response_message(
             messages=history,
             persona=self._persona,
@@ -69,30 +69,26 @@ class Interaction:
 
         return response["content"]
 
-    async def _respond_to_message_with_tools(self, message: discord.Message) -> str:
-        did_select_tool, *values = await self._select_tool(message)
+    async def _respond_to_message_with_tools(self) -> str:
+        did_select_tool, *values = await self._select_tool()
+        print(did_select_tool, values)
         if did_select_tool:
             selected_tool, kwargs = values
-            content = selected_tool(**kwargs)
+            content = await selected_tool(**kwargs)
         else:
             content, _ = values
 
         response = await llm.generate_response_message(
-            messages=[message],
+            messages=[self._message],
             persona=self._persona,
             additional_context=content,
         )
         return response["content"]
 
-    async def respond_to_message(
-            self,
-            message: discord.Message,
-            persona: str = "default",
-    ) -> str:
-        self._persona = await self._get_persona(persona)
-        self._tools = tool.ToolCollection()
-        self._add_relevant_tools(message)
+    async def respond_to_message(self, persona: str = "default") -> str:
+        if self._store:
+            self._persona = await self._store.get_persona(persona)
         if len(self._tools) > 0:
-            return await self._respond_to_message_with_tools(message)
+            return await self._respond_to_message_with_tools()
         else:
-            return await self._respond_to_message_without_tools(message)
+            return await self._respond_to_message_without_tools()
