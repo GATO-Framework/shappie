@@ -71,7 +71,6 @@ class Interaction:
 
     async def _respond_to_message_with_tools(self) -> str:
         did_select_tool, *values = await self._select_tool()
-        print(did_select_tool, values)
         if did_select_tool:
             selected_tool, kwargs = values
             content = await selected_tool(**kwargs)

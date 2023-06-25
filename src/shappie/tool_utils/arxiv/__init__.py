@@ -3,12 +3,7 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 import json
 import pathlib
-from random import choice
 import asyncio
-
-path = pathlib.Path(__file__).parent / "result_response.json"
-with open(path) as file:
-    response_options = json.load(file)
 
 
 async def search(query):
@@ -49,4 +44,4 @@ def format_results(results):
         formatted_results.append(
             f'{i + 1}. {result["title"]} (<{result["arxiv_link"]}>)')
     response = '\n'.join(formatted_results)
-    return choice(response_options) + response
+    return response
