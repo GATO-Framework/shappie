@@ -1,7 +1,7 @@
 import discord
 import motor.motor_asyncio
 
-from . import bot
+import model.persona
 
 
 class DataStore:
@@ -39,7 +39,7 @@ class DataStore:
             "time": message.created_at,
         })
 
-    async def add_persona(self, persona: bot.persona.Persona):
+    async def add_persona(self, persona: model.persona.Persona):
         await self._personas.insert_one(persona.json())
 
     async def update_persona(self, name, new_description):
@@ -54,6 +54,15 @@ class DataStore:
     async def get_persona(self, name):
         doc = await self._personas.find_one({"name": name})
         if doc:
-            return bot.persona.Persona(doc["name"], doc["description"])
+            return model.persona.Persona(doc["name"], doc["description"])
         else:
             return None
+
+    async def list_personas(self) -> list[model.persona.Persona]:
+        return [
+            model.persona.Persona(
+                doc["name"],
+                doc["description"],
+            )
+            async for doc in self._personas.find()
+        ]

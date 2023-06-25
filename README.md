@@ -3,6 +3,9 @@ AI powered discord bot
 
 ## Deployment
 
+> **NOTE:** In order to run Shappie, you'll need the appropriate environment variables.
+> These must go in a file called `.env.prod` in the same directory as the `docker-compose.yml`
+
 This application is packaged as a Docker container. You can use Docker Compose to manage the container.
 
 First, you need to install Docker and Docker Compose on your server if you haven't done so already. You can find instructions in the Docker documentation:

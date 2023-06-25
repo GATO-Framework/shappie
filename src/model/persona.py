@@ -1,16 +1,13 @@
+import dataclasses
+
+
+@dataclasses.dataclass
 class Persona:
-    def __init__(self, name, description):
-        self._name = name
-        self._description = description
+    name: str
+    description: str
 
     def __str__(self):
-        return self._description
-
-    def json(self):
-        return {
-            "name": self._name,
-            "description": self._description
-        }
+        return self.description
 
 
 _default_persona = """\

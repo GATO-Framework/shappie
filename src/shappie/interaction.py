@@ -3,7 +3,9 @@ import typing
 
 import discord
 
-from . import bot, datastore, llm, tool
+import api.storage
+import model.persona
+from . import llm, tool
 
 
 class Interaction:
@@ -11,10 +13,10 @@ class Interaction:
     def __init__(
             self,
             message: discord.Message,
-            store: datastore.DataStore | None = None,
+            store: api.storage.DataStore | None = None,
     ):
         self._message = message
-        self._persona = bot.persona.DEFAULT
+        self._persona = model.persona.DEFAULT
         self._store = store
 
         self._tools = tool.ToolCollection()

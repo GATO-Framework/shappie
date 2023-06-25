@@ -4,7 +4,7 @@ import typing
 
 
 def doot():
-    return "You should say something like \"I do the doot doot!\""
+    return "You should say silly something like \"doot doot the dootly doot 🔥\""
 
 
 def when_to_meet():

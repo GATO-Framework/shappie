@@ -4,5 +4,5 @@ services:
     build: .
     image: shappie
     env_file:
-      - .env
+      - .env.prod
     restart: unless-stopped

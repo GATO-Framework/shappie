@@ -4,8 +4,8 @@ import typing
 import discord
 import openai
 
-from . import persona
-from .. import datastore, interaction
+import api.storage
+from . import interaction
 
 MONGO_URI = os.environ.get("MONGO_URI")
 MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME")
@@ -36,7 +36,7 @@ class ShappieClient(discord.Client):
         self.tree = discord.app_commands.CommandTree(self)
         self._store = None
         if PERSIST:
-            self._store = datastore.DataStore(MONGO_URI, MONGO_DB_NAME)
+            self._store = api.storage.DataStore(MONGO_URI, MONGO_DB_NAME)
 
     async def setup_hook(self):
         await self.tree.sync()

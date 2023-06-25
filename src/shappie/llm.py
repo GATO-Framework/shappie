@@ -4,7 +4,7 @@ import typing
 import discord
 import openai
 
-from . import bot
+import model.persona
 
 
 def _format_chat_messages(
@@ -27,11 +27,11 @@ async def get_completion(
         functions=None,
         temperature: float = 0.25,
         max_tokens: float = 500,
-        model: str = "gpt-3.5-turbo-0613",
+        model_id: str = "gpt-3.5-turbo-0613",
 ) -> dict[str, typing.Any]:
     if functions:
         response = await openai.ChatCompletion.acreate(
-            model=model,
+            model=model_id,
             messages=messages,
             functions=functions,
             temperature=temperature,
@@ -39,7 +39,7 @@ async def get_completion(
         )
     else:
         response = await openai.ChatCompletion.acreate(
-            model=model,
+            model=model_id,
             messages=messages,
             temperature=temperature,
             max_tokens=max_tokens,
@@ -50,7 +50,7 @@ async def get_completion(
 
 async def generate_response_message(
         messages: list[discord.Message],
-        persona: bot.persona.Persona,
+        persona: model.persona.Persona,
         additional_context: str = "",
         functions=None,
         temperature: float = 0.25,
