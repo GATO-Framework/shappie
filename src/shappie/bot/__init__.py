@@ -52,9 +52,9 @@ class ShappieClient(discord.Client):
         if _did_mention_bot(message, self.user):
             async with message.channel.typing():
                 content = await bot_interaction.respond_to_message()
-            await message.reply(content)
+                await message.reply(content)
         elif bot_interaction.should_respond():
             async with message.channel.typing():
                 content = await bot_interaction.respond_to_message()
-            for chunk in _split_string_into_chunks(content):
-                await message.reply(chunk)
+                for chunk in _split_string_into_chunks(content):
+                    await message.reply(chunk)
