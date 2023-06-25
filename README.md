@@ -27,7 +27,7 @@ docker-compose down
 ### Updating the application
 When you want to update the application to the latest version, you can use the following commands:
 
-``` shell
+```shell
 docker-compose down
 docker-compose up --build -d
 ```

@@ -4,7 +4,7 @@ import typing
 
 
 def doot():
-    return "Shappie do the doot doot!"
+    return "You should say something like \"I do the doot doot!\""
 
 
 def when_to_meet():
@@ -12,10 +12,17 @@ def when_to_meet():
             "https://www.when2meet.com/")
 
 
+def get_layer_info(layer: int):
+    path = pathlib.Path(__file__).parent.parent / "layers" / f"layer-{layer}.md"
+    with open(path) as file:
+        return file.read()
+
+
 TOOLS = {
     "doot": doot,
     "meeting": when_to_meet,
     "schedule": when_to_meet,
+    "layer": get_layer_info,
 }
 
 
