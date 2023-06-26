@@ -80,7 +80,7 @@ class Interaction:
         response = await llm.generate_response_message(
             messages=[self._message],
             persona=self._persona,
-            additional_context=content,
+            additional_context=content if content else '',
         )
         return response["content"]
 
