@@ -1,10 +1,20 @@
 import json
 import pathlib
+import random
 import typing
 
 
 def doot():
-    gif_url = "https://media.giphy.com/media/5nqw7zaTNnwOpnhfWh/giphy.gif"
+    choices = [
+        "5nqw7zaTNnwOpnhfWh",
+        "3s81dTaNAQbvg0IxWy",
+        "26uf7RJZkFVj7zRqE",
+        "v9PnwTVN3JPad3xchA",
+        "UU7lo24DP8YsU",
+        "aGrvdgvnK6F4JrOqkI",
+    ]
+    gif = random.choice(choices)
+    gif_url = f"https://media.giphy.com/media/{gif}/giphy.gif"
     context = f"Say something silly like 'doot doot the dootly doot 🔥'"
     return dict(
         context=context,
