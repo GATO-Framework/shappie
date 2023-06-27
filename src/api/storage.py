@@ -1,9 +1,9 @@
 import dataclasses
 import typing
 
-import discord
 import motor.motor_asyncio
 
+import model.message
 import model.persona
 
 
@@ -18,46 +18,30 @@ class DataStore:
     def _get_collection(self, collection_name: str):
         return self._db[collection_name]
 
-    async def save_message(self, message: discord.Message):
-        channel = message.channel
-        channel_name = "dm" if isinstance(channel, discord.DMChannel) else channel.name
-
-        payload = {
-            "channel": channel_name,
-            "sender": message.author.name,
-            "message": message.content,
-            "time": message.created_at,
-        }
-        if message.guild:
-            payload["server"]: message.guild.name
-
+    async def save_message(self, message: model.message.Message):
+        payload = dataclasses.asdict(message)
         await self._messages.insert_one(payload)
 
-    async def save_link(self, message: discord.Message):
-        await self._links.insert_one({
-            "server": message.guild.name,
-            "channel": message.channel.name,
-            "sender": message.author.name,
-            "link": message.content,
-            "time": message.created_at,
-        })
-
     async def add_persona(self, persona: model.persona.Persona):
-        await self._personas.insert_one(dataclasses.asdict(persona))
+        payload = dataclasses.asdict(persona)
+        await self._personas.insert_one(payload)
 
-    async def update_persona(self, name, new_description):
+    async def update_persona(self, persona: model.persona.Persona):
         await self._personas.update_one(
-            {"name": name},
-            {"$set": {"description": new_description}}
+            {"name": persona.name},
+            {"$set": {"description": persona.description}},
         )
 
     async def delete_persona(self, name):
         await self._personas.delete_one({"name": name})
 
-    async def get_persona(self, name):
+    async def get_persona(self, name) -> typing.Optional[model.persona.Persona]:
         doc = await self._personas.find_one({"name": name})
         if doc:
-            return model.persona.Persona(doc["name"], doc["description"])
+            return model.persona.Persona(
+                name=doc["name"],
+                description=doc["description"],
+            )
         else:
             return None
 

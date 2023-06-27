@@ -4,6 +4,7 @@ import typing
 import discord
 
 import api.storage
+import model.message
 import model.persona
 from . import llm, tool
 
@@ -30,14 +31,28 @@ class Interaction:
         for keyword in self._keywords:
             self._tools.add_tool(keyword)
 
+    def _channel_name(self):
+        channel = self._message.channel
+        is_dm = isinstance(channel, discord.DMChannel)
+        return "dm" if is_dm else channel.name
+
+    def _server_name(self):
+        if self._message.guild:
+            return self._message.guild.name
+        return None
+
     async def save_data(self):
         if not self._store:
             return
 
-        await self._store.save_message(self._message)
-
-        if "http" in self._message.content:
-            await self._store.save_link(self._message)
+        message = model.message.Message(
+            server=self._server_name(),
+            channel=self._channel_name(),
+            sender=self._message.author.name,
+            message=self._message.content,
+            time=self._message.created_at,
+        )
+        await self._store.save_message(message)
 
     async def _get_channel_history(self, limit=10) -> list[discord.Message]:
         history = self._message.channel.history(limit=limit)

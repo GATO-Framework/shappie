@@ -62,7 +62,8 @@ class Mutation:
     async def update_persona(self, info: Info, name: str,
                              description: str) -> typing.Optional[Persona]:
         data_store: storage.DataStore = info.context["data_store"]
-        await data_store.update_persona(name, description)
+        persona = model.persona.Persona(name=name, description=description)
+        await data_store.update_persona(persona)
         updated_persona = await data_store.get_persona(name)
         if updated_persona:
             return updated_persona
