@@ -36,3 +36,15 @@ docker-compose -f docker-compose.yml up --build -d
 ```
 
 This will stop the current application container, rebuild the Docker image, and start a new container with the latest version of the application.
+
+
+## Development
+
+### Recreate the Database
+```shell
+docker-compose stop db
+docker-compose rm db
+docker volume rm shappie_shappie-db
+docker-compose up --build -d db
+docker-compose logs db
+```
