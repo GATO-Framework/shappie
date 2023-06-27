@@ -38,12 +38,15 @@ async def get_completion(
             max_tokens=max_tokens,
         )
     else:
-        response = await openai.ChatCompletion.acreate(
-            model=model_id,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=model_id,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        except openai.APIError:
+            return dict(content="Sorry, my brian broke.")
 
     return response["choices"][0]["message"]
 
