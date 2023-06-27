@@ -13,7 +13,8 @@ def when_to_meet():
 
 
 def get_layer_info(layer: int):
-    path = pathlib.Path(__file__).parent.parent / "layers" / f"layer-{layer}.md"
+    base_path = pathlib.Path(__file__).parent.parent.parent
+    path = base_path / "data" / "layers" / f"layer-{layer}.md"
     with open(path) as file:
         return file.read()
 
