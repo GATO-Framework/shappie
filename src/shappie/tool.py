@@ -4,19 +4,32 @@ import typing
 
 
 def doot():
-    return "You should say silly something like \"doot doot the dootly doot 🔥\""
+    gif_url = "https://media.giphy.com/media/5nqw7zaTNnwOpnhfWh/giphy.gif"
+    context = f"Say something silly like 'doot doot the dootly doot 🔥'"
+    return dict(
+        context=context,
+        use_llm=True,
+        image_url=gif_url,
+    )
 
 
 def when_to_meet():
-    return ("People in this server have had luck with when2meet. "
-            "Here's the link: https://www.when2meet.com/")
+    content = "People in this server have had luck with `when2meet`."
+    return dict(
+        content=content,
+        use_llm=False,
+        url="https://www.when2meet.com/",
+    )
 
 
 def get_layer_info(layer: int):
-    base_path = pathlib.Path(__file__).parent.parent.parent
-    path = base_path / "data" / "layers" / f"layer-{layer}.md"
+    path = pathlib.Path("data") / "layers" / f"layer-{layer}.md"
     with open(path) as file:
-        return file.read()
+        context = file.read()
+    return dict(
+        context=context,
+        use_llm=True,
+    )
 
 
 TOOLS = {

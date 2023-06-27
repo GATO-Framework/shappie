@@ -61,31 +61,45 @@ class Interaction:
 
         return False, response["content"], {}
 
-    async def _respond_to_message_without_tools(self) -> str:
+    async def _respond_to_message_without_tools(self) -> dict[str, str]:
         history = await self._get_channel_history()
         response = await llm.generate_response_message(
             messages=history,
             persona=self._persona,
         )
 
-        return response["content"]
+        return dict(message=response["content"][:2000])
 
-    async def _respond_to_message_with_tools(self) -> str:
+    async def _respond_to_message_with_tools(self) -> dict[str, str]:
         did_select_tool, *values = await self._select_tool()
         if did_select_tool:
             selected_tool, kwargs = values
-            content = selected_tool(**kwargs)
+            results = selected_tool(**kwargs)
+            if results.pop("use_llm", False):
+                response = await llm.generate_response_message(
+                    messages=[self._message],
+                    persona=self._persona,
+                    additional_context=results.pop("context"),
+                )
+                content = response["content"]
+                results["content"] = content[:2000]
         else:
             content, _ = values
+            results = dict(content=content)
 
-        response = await llm.generate_response_message(
-            messages=[self._message],
-            persona=self._persona,
-            additional_context=content,
-        )
-        return response["content"]
+        if url := results.pop("url", None):
+            embed = discord.Embed(title="When to Meet", url=url)
+            results["embed"] = embed
 
-    async def respond_to_message(self, persona: str = "default") -> str:
+        if url := results.pop("image_url", None):
+            embed = discord.Embed()
+            embed.set_image(url=url)
+            results["embed"] = embed
+
+        print(results)
+        return results
+
+    async def respond_to_message(self, persona: str = "default") -> dict[str, str]:
         if self._store:
             self._persona = await self._store.get_persona(persona)
         if len(self._tools) > 0:

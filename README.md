@@ -48,3 +48,14 @@ docker volume rm shappie_shappie-db
 docker-compose up --build -d db
 docker-compose logs db
 ```
+
+## Architecture
+
+### Tools
+
+Tool functions should return a dictionary with various options:
+- `use_llm`: This tells the bot to use the LLM to respond to the message, this requires `context`.
+- `context`: Additional context passed to the LLM when responding after a using a tool.
+- `conent`: The content of the message if not using an LLM. This is added by the LLM if `use_llm` is `True`.
+- `image_url`: Creates an embed using the given image URL. Used for GIFs currently.
+- `url`: Creates an embed with the given URL. Used for `when2meet` right now.

@@ -1,3 +1,4 @@
+import logging
 import os
 import typing
 
@@ -51,10 +52,9 @@ class ShappieClient(discord.Client):
 
         if _did_mention_bot(message, self.user):
             async with message.channel.typing():
-                content = await bot_interaction.respond_to_message()
-            await message.reply(content)
+                results = await bot_interaction.respond_to_message()
+            await message.reply(**results)
         elif bot_interaction.should_respond():
             async with message.channel.typing():
-                content = await bot_interaction.respond_to_message()
-            for chunk in _split_string_into_chunks(content):
-                await message.channel.send(chunk)
+                results = await bot_interaction.respond_to_message()
+            await message.channel.send(**results)
