@@ -17,6 +17,7 @@ class Interaction:
             store: api.storage.DataStore | None = None,
     ):
         self._message = message
+        self._channel_history = []
         self._persona = model.persona.DEFAULT
         self._store = store
 
@@ -61,7 +62,7 @@ class Interaction:
     async def _select_tool(
             self,
     ) -> tuple[bool, typing.Callable, dict]:
-        history = await self._get_channel_history()
+        history = self._channel_history
         response = await llm.generate_response_message(
             messages=history,
             persona=self._persona,
@@ -77,13 +78,13 @@ class Interaction:
         return False, response["content"], {}
 
     async def _respond_to_message_without_tools(self) -> dict[str, str]:
-        history = await self._get_channel_history()
+        history = self._channel_history
         response = await llm.generate_response_message(
             messages=history,
             persona=self._persona,
         )
 
-        return dict(message=response["content"][:2000])
+        return dict(content=response["content"][:2000])
 
     async def _respond_to_message_with_tools(self) -> dict[str, str]:
         did_select_tool, *values = await self._select_tool()
@@ -91,8 +92,9 @@ class Interaction:
             selected_tool, kwargs = values
             results = selected_tool(**kwargs)
             if results.pop("use_llm", False):
+                history = self._channel_history
                 response = await llm.generate_response_message(
-                    messages=[self._message],
+                    messages=history,
                     persona=self._persona,
                     additional_context=results.pop("context"),
                 )
@@ -117,6 +119,7 @@ class Interaction:
     async def respond_to_message(self, persona: str = "default") -> dict[str, str]:
         if self._store:
             self._persona = await self._store.get_persona(persona)
+        self._channel_history = await self._get_channel_history()
         if len(self._tools) > 0:
             return await self._respond_to_message_with_tools()
         else:

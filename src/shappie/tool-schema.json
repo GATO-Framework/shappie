@@ -1,7 +1,7 @@
 {
   "doot": {
     "name": "doot",
-    "description": "If the word doot appears in the message, this function MUST be run.",
+    "description": "If the word \"doot\" appears ANYWHERE in the message, it is ESSENTIAL that this function is run regardless of the context.",
     "parameters": {
       "type": "object",
       "properties": {}
