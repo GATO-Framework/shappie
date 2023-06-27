@@ -1,8 +1,32 @@
 version: '3.8'
 services:
-  shappie:
-    build: .
-    image: shappie
+  discord-bot:
+    build:
+      context: .
+      dockerfile: containers/Discord.Dockerfile
+    image: shappie_discord_bot
     env_file:
-      - .env.prod
+      - .env
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: containers/API.Dockerfile
+    image: shappie_api
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: containers/Dashboard.Dockerfile
+    image: shappie_dashboard
+    env_file:
+      - .env
+    ports:
+      - "8501:8501"
     restart: unless-stopped

@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  db:
+    image: mongo:latest
+    volumes:
+      - shappie-db:/data/db
+    ports:
+      - "27017:27017"
+
+volumes:
+  shappie-db:

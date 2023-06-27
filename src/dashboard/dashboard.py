@@ -3,7 +3,7 @@ import streamlit
 
 
 def _send_graphql_request(payload):
-    url = 'http://127.0.0.1:8000/graphql'
+    url = 'http://api:8000/graphql'
     headers = {'Content-Type': 'application/json'}
     response = httpx.post(url, headers=headers, json={"query": payload})
     if response.status_code != 200:

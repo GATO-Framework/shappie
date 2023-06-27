@@ -17,7 +17,7 @@ Once Docker and Docker Compose are installed, you can use the following commands
 
 ### First time deploy
 ```shell
-docker-compose up --build -d
+docker-compose -f docker-compose.yml up --build -d
 ```
 This command builds the Docker image for the application (if it hasn't been built already or if the Dockerfile has changed), and starts the application in the background.
 
@@ -32,7 +32,7 @@ When you want to update the application to the latest version, you can use the f
 
 ```shell
 docker-compose down
-docker-compose up --build -d
+docker-compose -f docker-compose.yml up --build -d
 ```
 
 This will stop the current application container, rebuild the Docker image, and start a new container with the latest version of the application.
