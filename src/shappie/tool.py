@@ -1,10 +1,12 @@
+import arxiv
 import json
 import pathlib
 import random
 import typing
+import asyncio
 
 
-def doot():
+async def doot():
     choices = [
         "5nqw7zaTNnwOpnhfWh",
         "3s81dTaNAQbvg0IxWy",
@@ -23,7 +25,7 @@ def doot():
     )
 
 
-def when_to_meet():
+async def when_to_meet():
     content = "People in this server have had luck with `when2meet`."
     return dict(
         content=content,
@@ -32,7 +34,7 @@ def when_to_meet():
     )
 
 
-def get_layer_info(layer: int):
+async def get_layer_info(layer: int):
     path = pathlib.Path("data") / "layers" / f"layer-{layer}.md"
     with open(path) as file:
         context = file.read()
@@ -42,11 +44,30 @@ def get_layer_info(layer: int):
     )
 
 
+def _get_paper_results(query: str):
+    # arxiv search for query
+    result = arxiv.Search(
+        query=query,
+        max_results=15,
+    )
+    return [f"{paper.title} - {paper.entry_id} - {paper.authors}" for paper in result.results()]
+
+
+async def paper(query: str):
+    loop = asyncio.get_event_loop()
+    # arxiv lib is not async, so we run it in a thread
+    query_results = await loop.run_in_executor(None, _get_paper_results, query)
+    return dict(
+        context="\n".join(query_results),
+        use_llm=True,
+    )
+
 TOOLS = {
     "doot": doot,
     "meeting": when_to_meet,
     "schedule": when_to_meet,
     "layer": get_layer_info,
+    "paper": paper,
 }
 
 

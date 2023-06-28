@@ -6,3 +6,4 @@ openai~=0.27.8
 streamlit~=1.23.1
 strawberry-graphql[fastapi]~=0.189.0
 uvicorn[standard]~=0.22.0
+arxiv~=1.4.7

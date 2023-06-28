@@ -22,7 +22,8 @@ class Interaction:
         self._store = store
 
         self._tools = tool.ToolCollection()
-        self._keywords = set(filter(lambda k: k in self._message.content, tool.TOOLS))
+        self._keywords = set(
+            filter(lambda k: k in self._message.content, tool.TOOLS))
         self._add_relevant_tools()
 
     def should_respond(self):
@@ -90,7 +91,7 @@ class Interaction:
         did_select_tool, *values = await self._select_tool()
         if did_select_tool:
             selected_tool, kwargs = values
-            results = selected_tool(**kwargs)
+            results = await selected_tool(**kwargs)
             if results.pop("use_llm", False):
                 history = self._channel_history
                 response = await llm.generate_response_message(

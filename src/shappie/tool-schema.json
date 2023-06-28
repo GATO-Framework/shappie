@@ -30,5 +30,21 @@
         "layer"
       ]
     }
+  },
+  "paper": {
+    "name": "paper",
+    "description": "Search arXiv for papers. This is meant to help people find papers to read. Access this function if the user has expressed interest in finding a paper.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "The query to search for"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
   }
 }
