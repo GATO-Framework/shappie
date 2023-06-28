@@ -63,8 +63,8 @@ class DataStore:
             {
                 '$match': {
                     'time': {
-                        '$gte': start_time.isoformat(),
-                        '$lte': end_time.isoformat()
+                        '$gte': start_time,
+                        '$lte': end_time,
                     }
                 }
             },
