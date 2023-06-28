@@ -15,7 +15,7 @@ def _format_chat_messages(
         is_bot = message.author.bot
         username = message.author.display_name
         role = "assistant" if is_bot else "user"
-        content = message.content if is_bot else f"{message.content} [User: {username}]"
+        content = message.content if is_bot else f"{message.content} [User: <{username}>]"
 
         chat_messages.append({"role": role, "content": content})
 
@@ -28,6 +28,7 @@ async def get_completion(
         temperature: float = 0.25,
         max_tokens: float = 500,
         model_id: str = "gpt-3.5-turbo-0613",
+        **kwargs,
 ) -> dict[str, typing.Any]:
     if functions:
         response = await openai.ChatCompletion.acreate(
@@ -36,6 +37,7 @@ async def get_completion(
             functions=functions,
             temperature=temperature,
             max_tokens=max_tokens,
+            **kwargs,
         )
     else:
         try:
@@ -44,6 +46,7 @@ async def get_completion(
                 messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens,
+                **kwargs,
             )
         except openai.APIError:
             return dict(content="Sorry, my brian broke.")
