@@ -86,13 +86,10 @@ class DataStore:
         # Perform the aggregation
         messages = []
         async for doc in self._messages.aggregate(pipeline):
-            # Format the date as a string
-            year = doc["_id"]["year"]
-            month = doc["_id"]["month"]
-            day = doc["_id"]["day"]
-            time_period = f"{year}-{month:02d}-{day:02d}"
             messages.append(dict(
-                time_period=time_period,
+                year=doc["_id"]["year"],
+                month=doc["_id"]["month"],
+                day=doc["_id"]["day"],
                 num_messages=doc["num_messages"],
             ))
 

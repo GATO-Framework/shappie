@@ -33,8 +33,10 @@ class Persona:
 
 
 @strawberry.type
-class MessageStatistics:
-    time_period: str
+class MessagesPerDay:
+    year: int
+    month: int
+    day: int
     num_messages: int
 
 
@@ -61,12 +63,14 @@ class Query:
             info: Info,
             start_time: datetime.datetime,
             end_time: datetime.datetime,
-    ) -> list[MessageStatistics]:
+    ) -> list[MessagesPerDay]:
         data_store: storage.DataStore = info.context["data_store"]
         stats = await data_store.get_messages_statistics(start_time, end_time)
         return [
-            MessageStatistics(
-                time_period=stat['time_period'],
+            MessagesPerDay(
+                year=stat['year'],
+                month=stat['month'],
+                day=stat['day'],
                 num_messages=stat['num_messages'],
             ) for stat in stats
         ]
