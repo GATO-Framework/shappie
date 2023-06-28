@@ -1,3 +1,4 @@
+import datetime
 import os
 import typing
 
@@ -32,6 +33,12 @@ class Persona:
 
 
 @strawberry.type
+class MessageStatistics:
+    time_period: str
+    num_messages: int
+
+
+@strawberry.type
 class Query:
     @strawberry.field
     async def persona(self, info: Info, name: str) -> typing.Optional[Persona]:
@@ -46,6 +53,22 @@ class Query:
         return [
             Persona(name=doc.name, description=doc.description)
             async for doc in data_store.list_personas()
+        ]
+
+    @strawberry.field
+    async def messages_statistics(
+            self,
+            info: Info,
+            start_date: datetime.datetime,
+            end_date: datetime.datetime,
+    ) -> list[MessageStatistics]:
+        data_store: storage.DataStore = info.context["data_store"]
+        stats = await data_store.get_messages_statistics(start_date, end_date)
+        return [
+            MessageStatistics(
+                time_period=stat['time_period'],
+                num_messages=stat['num_messages'],
+            ) for stat in stats
         ]
 
 

@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 import typing
 
 import motor.motor_asyncio
@@ -51,3 +52,49 @@ class DataStore:
                 doc["name"],
                 doc["description"],
             )
+
+    async def get_messages_statistics(
+            self,
+            start_date: datetime.datetime,
+            end_date: datetime.datetime,
+    ) -> list[dict]:
+        # Create a pipeline for aggregation
+        pipeline = [
+            {
+                '$match': {
+                    'time.$date': {
+                        '$gte': start_date.isoformat(),
+                        '$lte': end_date.isoformat()
+                    }
+                }
+            },
+            {
+                '$group': {
+                    '_id': {
+                        'year': {'$year': '$time.$date'},
+                        'month': {'$month': '$time.$date'},
+                        'day': {'$dayOfMonth': '$time.$date'},
+                    },
+                    'num_messages': {'$sum': 1}
+                }
+            },
+            {
+                '$sort': {'_id': 1}
+            }
+        ]
+
+        # Perform the aggregation
+        messages = []
+        async for doc in self._messages.aggregate(pipeline):
+            # Format the date as a string
+            year = doc["_id"]["year"]
+            month = doc["_id"]["month"]
+            day = doc["_id"]["day"]
+            time_period = f"{year}-{month:02d}-{day:02d}"
+            messages.append(dict(
+                time_period=time_period,
+                num_messages=doc["num_messages"],
+            ))
+
+        return messages
+
