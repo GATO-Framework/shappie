@@ -14,6 +14,7 @@ def _send_graphql_request(payload):
     return response.json()
 
 
+@streamlit.cache_data(ttl=600)
 def get_personas():
     query = """
     {
@@ -96,26 +97,7 @@ def get_engagement_metrics(
 def main():
     streamlit.title("Shappie Dashboard")
 
-    personas = get_personas()
-    name = streamlit.selectbox("Personas", options=personas)
-    description = streamlit.text_area(
-        "Persona Description",
-        value=personas[name],
-        height=200,
-    ).replace("\n", " ")
-    if streamlit.button("Update"):
-        mutation = f"""
-        mutation {{
-          updatePersona(name: "{name}", description: "{description}") {{
-            name
-            description
-          }}
-        }}
-        """
-        _send_graphql_request(mutation)
-        streamlit.success("Persona updated!")
-
-    streamlit.subheader("Message Statistics")
+    streamlit.header("Message Statistics")
 
     start_time = datetime.datetime.now() - datetime.timedelta(days=30)
     end_time = datetime.datetime.now()
@@ -143,6 +125,29 @@ def main():
             )
     else:
         streamlit.warning("No message statistics available.")
+
+    streamlit.divider()
+
+    streamlit.header("Persona")
+
+    personas = get_personas()
+    name = streamlit.selectbox("Personas", options=personas)
+    description = streamlit.text_area(
+        "Persona Description",
+        value=personas[name],
+        height=200,
+    ).replace("\n", " ")
+    if streamlit.button("Update"):
+        mutation = f"""
+        mutation {{
+          updatePersona(name: "{name}", description: "{description}") {{
+            name
+            description
+          }}
+        }}
+        """
+        _send_graphql_request(mutation)
+        streamlit.success("Persona updated!")
 
 
 if __name__ == '__main__':
