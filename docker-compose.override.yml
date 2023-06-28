@@ -17,6 +17,8 @@ services:
       - db
 
   dashboard:
+    volumes:
+      - ./src/dashboard:/app/dashboard
     depends_on:
       - db
       - api

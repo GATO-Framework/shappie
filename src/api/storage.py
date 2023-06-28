@@ -55,25 +55,25 @@ class DataStore:
 
     async def get_messages_statistics(
             self,
-            start_date: datetime.datetime,
-            end_date: datetime.datetime,
+            start_time: datetime.datetime,
+            end_time: datetime.datetime,
     ) -> list[dict]:
         # Create a pipeline for aggregation
         pipeline = [
             {
                 '$match': {
-                    'time.$date': {
-                        '$gte': start_date.isoformat(),
-                        '$lte': end_date.isoformat()
+                    'time': {
+                        '$gte': start_time.isoformat(),
+                        '$lte': end_time.isoformat()
                     }
                 }
             },
             {
                 '$group': {
                     '_id': {
-                        'year': {'$year': '$time.$date'},
-                        'month': {'$month': '$time.$date'},
-                        'day': {'$dayOfMonth': '$time.$date'},
+                        'year': {'$year': '$time'},
+                        'month': {'$month': '$time'},
+                        'day': {'$dayOfMonth': '$time'},
                     },
                     'num_messages': {'$sum': 1}
                 }
@@ -97,4 +97,3 @@ class DataStore:
             ))
 
         return messages
-

@@ -56,14 +56,14 @@ class Query:
         ]
 
     @strawberry.field
-    async def messages_statistics(
+    async def message_statistics(
             self,
             info: Info,
-            start_date: datetime.datetime,
-            end_date: datetime.datetime,
+            start_time: datetime.datetime,
+            end_time: datetime.datetime,
     ) -> list[MessageStatistics]:
         data_store: storage.DataStore = info.context["data_store"]
-        stats = await data_store.get_messages_statistics(start_date, end_date)
+        stats = await data_store.get_messages_statistics(start_time, end_time)
         return [
             MessageStatistics(
                 time_period=stat['time_period'],
