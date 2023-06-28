@@ -8,6 +8,8 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    depends_on:
+      - api
 
   api:
     build:
@@ -30,3 +32,5 @@ services:
     ports:
       - "8501:8501"
     restart: unless-stopped
+    depends_on:
+      - api
