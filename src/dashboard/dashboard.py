@@ -1,7 +1,7 @@
-import collections
 import datetime
 
 import httpx as httpx
+import pandas
 import streamlit
 
 
@@ -61,37 +61,27 @@ def get_engagement_metrics(
     if not statistics:
         return None
 
-    counts: dict[datetime.date, int] = collections.defaultdict(int)
+    # Create DataFrame from statistics
+    df = pandas.DataFrame(statistics)
+    df['date'] = pandas.to_datetime(df[['year', 'month', 'day']])
+    df.set_index('date', inplace=True)
+    df = df.resample('D').sum()  # resample to ensure we have entries for each day
 
-    # Compute sums for each day
-    for stat in statistics:
-        date = datetime.date(stat["year"], stat["month"], stat["day"])
-        counts[date] += stat["numMessages"]
+    today = pandas.Timestamp(datetime.datetime.now().date())
+    yesterday = today - pandas.DateOffset(days=1)
+    week_start = today - pandas.DateOffset(days=6)
+    last_week_start = week_start - pandas.DateOffset(days=7)
 
-    # Today's total messages
-    today = datetime.date.today()
-    today_messages = counts[today]
-    yesterday_messages = counts[today - datetime.timedelta(days=1)]
-
-    # This week's total messages
-    week_start = today - datetime.timedelta(days=6)
-    this_week_messages = sum(
-        counts[date] for date in counts if week_start <= date <= today)
-    last_week_start = week_start - datetime.timedelta(days=7)
-    last_week_messages = sum(
-        counts[date] for date in counts if last_week_start <= date < week_start)
-
-    # Past 30 days' total messages
-    last_month_messages = sum(
-        counts[date] for date in counts if start_time.date() <= date <= today)
-
-    return dict(
-        today=today_messages,
-        today_change=today_messages - yesterday_messages,
-        week=this_week_messages,
-        week_change=this_week_messages - last_week_messages,
-        month=last_month_messages,
-    )
+    return {
+        'today': int(df.loc[today, 'numMessages']),
+        'today_change': int(df.loc[today, 'numMessages'] -
+                            df.loc[yesterday, 'numMessages']),
+        'week': int(df.loc[week_start:today, 'numMessages'].sum()),
+        'week_change': int(df.loc[week_start:today, 'numMessages'].sum() -
+                           df.loc[last_week_start:week_start, 'numMessages'].sum()),
+        'month': int(df['numMessages'].sum()),
+        'chart_data': df[['numMessages']],
+    }
 
 
 def main():
@@ -123,6 +113,7 @@ def main():
                 label="Past 30 Day's Total Messages",
                 value=message_statistics["month"],
             )
+        streamlit.line_chart(message_statistics['chart_data'])
     else:
         streamlit.warning("No message statistics available.")
 
