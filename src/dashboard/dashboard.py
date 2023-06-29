@@ -34,11 +34,11 @@ def set_state(mode: str, constitutions: list[str], persona: str):
     query = f"""
     mutation {{
       updateState(mode: "{mode}",
-                  constitutions: "{constitutions}",
+                  constitutions: {str(constitutions).replace("'", '"')},
                   persona: "{persona}") {{
-        mode
-        constitutions
-        persona
+        mode {{ name }}
+        constitutions {{ name }}
+        persona {{ name }}
       }}
     }}
     """
@@ -181,6 +181,7 @@ def main():
 
     with tabs[1]:
         state = get_state()
+        streamlit.code(state)
 
         modes = get_modes()
         mode = streamlit.selectbox("Mode", options=modes,

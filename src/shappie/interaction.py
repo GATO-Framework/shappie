@@ -23,6 +23,7 @@ class Interaction:
         self._state: model.State | None = None
         self._modes = {
             "chatbot": self._chatbot_mode,
+            "test": lambda: None,
         }
 
         self._tools = tool.ToolCollection()

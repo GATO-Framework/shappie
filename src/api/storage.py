@@ -181,7 +181,7 @@ class DataStore:
 
         cursor = self._state.aggregate(pipeline)
         doc = await cursor.to_list(length=1)
-
+        print("***", doc)
         if not doc:
             return None
 
