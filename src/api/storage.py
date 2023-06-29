@@ -24,6 +24,38 @@ class DataStore:
         payload = dataclasses.asdict(message)
         await self._messages.insert_one(payload)
 
+    async def get_mode(self, name: str) -> model.Mode | None:
+        doc = await self._modes.find_one({"name": name})
+        if doc:
+            return model.Mode(
+                name=doc["name"],
+            )
+        else:
+            return None
+
+    async def list_modes(self) -> typing.AsyncIterable[model.Mode]:
+        async for doc in self._modes.find():
+            yield model.Mode(
+                doc["name"],
+            )
+
+    async def get_constitution(self, name: str) -> model.Constitution | None:
+        doc = await self._constitutions.find_one({"name": name})
+        if doc:
+            return model.Constitution(
+                name=doc["name"],
+                components=doc["components"],
+            )
+        else:
+            return None
+
+    async def list_constitutions(self) -> typing.AsyncIterable[model.Constitution]:
+        async for doc in self._constitutions.find():
+            yield model.Constitution(
+                name=doc["name"],
+                components=doc["components"],
+            )
+
     async def add_persona(self, persona: model.Persona):
         payload = dataclasses.asdict(persona)
         await self._personas.insert_one(payload)
@@ -174,4 +206,16 @@ class DataStore:
                 name=doc["mutation"]["name"],
                 effect=doc["mutation"]["effect"],
             ),
+        )
+
+    async def update_state(self, mode: str, constitutions: list[str], persona: str):
+        await self._state.update_one(
+            {},
+            {
+                "$set": {
+                    "mode": mode,
+                    "constitutions": constitutions,
+                    "persona": persona,
+                },
+            },
         )

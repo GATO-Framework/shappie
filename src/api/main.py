@@ -1,6 +1,5 @@
 import datetime
 import os
-import typing
 
 import strawberry
 import uvicorn as uvicorn
@@ -27,9 +26,27 @@ async def get_context(
 
 
 @strawberry.type
+class Mode:
+    name: str
+
+
+@strawberry.type
+class Constitution:
+    name: str
+    components: str
+
+
+@strawberry.type
 class Persona:
     name: str
     description: str
+
+
+@strawberry.type
+class State:
+    mode: Mode
+    constitutions: list[Constitution]
+    persona: Persona
 
 
 @strawberry.type
@@ -43,7 +60,44 @@ class MessagesPerDay:
 @strawberry.type
 class Query:
     @strawberry.field
-    async def persona(self, info: Info, name: str) -> typing.Optional[Persona]:
+    async def state(self, info: Info) -> State | None:
+        data_store: storage.DataStore = info.context["data_store"]
+        state = await data_store.get_state()
+        if state:
+            return state
+
+    @strawberry.field
+    async def mode(self, info: Info, name: str) -> Mode | None:
+        data_store: storage.DataStore = info.context["data_store"]
+        doc = await data_store.get_mode(name)
+        if doc:
+            return Mode(name=doc.name)
+
+    @strawberry.field
+    async def modes(self, info: Info) -> list[Mode]:
+        data_store: storage.DataStore = info.context["data_store"]
+        return [
+            Mode(name=doc.name)
+            async for doc in data_store.list_modes()
+        ]
+
+    @strawberry.field
+    async def constitution(self, info: Info, name: str) -> Constitution | None:
+        data_store: storage.DataStore = info.context["data_store"]
+        doc = await data_store.get_constitution(name)
+        if doc:
+            return Constitution(name=doc.name, components=doc.components)
+
+    @strawberry.field
+    async def constitutions(self, info: Info) -> list[Constitution]:
+        data_store: storage.DataStore = info.context["data_store"]
+        return [
+            Constitution(name=doc.name, components=doc.components)
+            async for doc in data_store.list_constitutions()
+        ]
+
+    @strawberry.field
+    async def persona(self, info: Info, name: str) -> Persona | None:
         data_store: storage.DataStore = info.context["data_store"]
         doc = await data_store.get_persona(name)
         if doc:
@@ -87,13 +141,24 @@ class Mutation:
 
     @strawberry.mutation
     async def update_persona(self, info: Info, name: str,
-                             description: str) -> typing.Optional[Persona]:
+                             description: str) -> Persona | None:
         data_store: storage.DataStore = info.context["data_store"]
         persona = model.Persona(name=name, description=description)
         await data_store.update_persona(persona)
         updated_persona = await data_store.get_persona(name)
         if updated_persona:
             return updated_persona
+        else:
+            return None
+
+    @strawberry.mutation
+    async def update_state(self, info: Info, mode: str, constitutions: list[str],
+                           persona: str) -> State | None:
+        data_store: storage.DataStore = info.context["data_store"]
+        await data_store.update_state(mode, constitutions, persona)
+        updated_state = await data_store.get_state()
+        if updated_state:
+            return updated_state
         else:
             return None
 
