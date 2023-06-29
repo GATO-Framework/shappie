@@ -1,4 +1,3 @@
-import logging
 import os
 import typing
 
@@ -16,21 +15,6 @@ PERSIST = bool(os.environ.get("PERSIST", False))
 openai.api_key = OPENAI_API_KEY
 
 
-def _did_mention_bot(message: discord.Message, bot_user: discord.ClientUser) -> bool:
-    guild = message.guild
-    if guild:
-        bot_roles = set(guild.get_member(bot_user.id).roles)
-        did_mention_role = bot_roles.intersection(message.role_mentions)
-        did_mention_bot = bot_user in message.mentions
-        return did_mention_bot or did_mention_role
-    return False
-
-
-def _split_string_into_chunks(input_string, chunk_size=2000):
-    return [input_string[i:i + chunk_size]
-            for i in range(0, len(input_string), chunk_size)]
-
-
 class ShappieClient(discord.Client):
     def __init__(self, *, intents: discord.Intents, **options: typing.Any):
         super().__init__(intents=intents, **options)
@@ -43,18 +27,5 @@ class ShappieClient(discord.Client):
         await self.tree.sync()
 
     async def on_message(self, message: discord.Message):
-        bot_interaction = interaction.Interaction(message, self._store)
-
-        await bot_interaction.save_data()
-
-        if message.author.bot:
-            return
-
-        if _did_mention_bot(message, self.user):
-            async with message.channel.typing():
-                results = await bot_interaction.respond_to_message()
-            await message.reply(**results)
-        elif bot_interaction.should_respond():
-            async with message.channel.typing():
-                results = await bot_interaction.respond_to_message()
-            await message.channel.send(**results)
+        bot_interaction = interaction.Interaction(self.user, message, self._store)
+        await bot_interaction.start()

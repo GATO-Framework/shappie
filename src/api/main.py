@@ -8,7 +8,7 @@ from fastapi import FastAPI, Depends
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
-import model.persona
+import model
 from api import storage
 
 
@@ -81,7 +81,7 @@ class Mutation:
     @strawberry.mutation
     async def add_persona(self, info: Info, name: str, description: str) -> Persona:
         data_store: storage.DataStore = info.context["data_store"]
-        persona = model.persona.Persona(name, description)
+        persona = model.Persona(name, description)
         await data_store.add_persona(persona)
         return persona
 
@@ -89,7 +89,7 @@ class Mutation:
     async def update_persona(self, info: Info, name: str,
                              description: str) -> typing.Optional[Persona]:
         data_store: storage.DataStore = info.context["data_store"]
-        persona = model.persona.Persona(name=name, description=description)
+        persona = model.Persona(name=name, description=description)
         await data_store.update_persona(persona)
         updated_persona = await data_store.get_persona(name)
         if updated_persona:
