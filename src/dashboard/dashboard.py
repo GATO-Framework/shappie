@@ -181,7 +181,6 @@ def main():
 
     with tabs[1]:
         state = get_state()
-        streamlit.code(state)
 
         modes = get_modes()
         mode = streamlit.selectbox("Mode", options=modes,
