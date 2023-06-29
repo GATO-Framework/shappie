@@ -12,11 +12,11 @@ class Interaction:
 
     def __init__(
             self,
-            bot: discord.ClientUser,
+            client: discord.Client,
             message: discord.Message,
             store: api.storage.DataStore | None = None,
     ):
-        self._bot = bot
+        self._client = client
         self._message = message
         self._channel_history = []
         self._store = store
@@ -33,9 +33,9 @@ class Interaction:
     def _did_mention_bot(self) -> bool:
         guild = self._message.guild
         if guild:
-            bot_roles = set(guild.get_member(self._bot.id).roles)
+            bot_roles = set(guild.get_member(self._client.user.id).roles)
             did_mention_role = bot_roles.intersection(self._message.role_mentions)
-            did_mention_bot = self._bot in self._message.mentions
+            did_mention_bot = self._client.user in self._message.mentions
             return did_mention_bot or did_mention_role
         return False
 
@@ -148,6 +148,14 @@ class Interaction:
     async def start(self):
         if self._store:
             self._state = await self._store.get_state()
+            mode = self._state.mode.name
+
+            constitutions = ",".join([c.name for c in self._state.constitutions])
+            persona = self._state.persona.name
+            activity = discord.Game(
+                name=f"Mode: {mode} | Const: {constitutions} | Persona: {persona}",
+            )
+            await self._client.change_presence(activity=activity)
             mode_name = self._state.mode.name
         else:
             mode_name = "chatbot"

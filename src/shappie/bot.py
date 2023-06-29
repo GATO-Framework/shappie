@@ -27,5 +27,5 @@ class ShappieClient(discord.Client):
         await self.tree.sync()
 
     async def on_message(self, message: discord.Message):
-        bot_interaction = interaction.Interaction(self.user, message, self._store)
+        bot_interaction = interaction.Interaction(self, message, self._store)
         await bot_interaction.start()
