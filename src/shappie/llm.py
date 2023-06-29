@@ -4,7 +4,7 @@ import typing
 import discord
 import openai
 
-from . import bot
+import model
 
 
 def _format_chat_messages(
@@ -27,48 +27,53 @@ async def get_completion(
         functions=None,
         temperature: float = 0.25,
         max_tokens: float = 500,
-        model: str = "gpt-3.5-turbo-0613",
+        model_id: str = "gpt-3.5-turbo-0613",
 ) -> dict[str, typing.Any]:
     if functions:
         response = await openai.ChatCompletion.acreate(
-            model=model,
+            model=model_id,
             messages=messages,
             functions=functions,
             temperature=temperature,
             max_tokens=max_tokens,
         )
     else:
-        response = await openai.ChatCompletion.acreate(
-            model=model,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=model_id,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        except openai.APIError:
+            return dict(content="Sorry, my brian broke.")
 
     return response["choices"][0]["message"]
 
 
 async def generate_response_message(
         messages: list[discord.Message],
-        persona: bot.persona.Persona,
+        state: model.State,
         additional_context: str = "",
         functions=None,
         temperature: float = 0.25,
         max_tokens: float = 500,
         lookback=10,
 ) -> dict[str, typing.Any]:
+    constitutions = []
+    for constitution in state.constitutions:
+        constitutions.extend(constitution.components)
+    components = "\n".join(constitutions)
     system_prompt = inspect.cleandoc(f"""
     You are a discord bot. 
     You will be given the last {lookback} messages for context, 
     however you are responding to {messages[-1].author.display_name}. 
     You will see [User: <username>] for each message, but this is just for context. 
     Your imperatives are three-fold
-    - Decrease suffering in the universe
-    - Increase prosperity in the universe
-    - Increase understanding in the universe
+    {components}
 
     Take on the following persona when responding to messages:
-    """) + f"\n{persona}"
+    """) + f"\n{state.persona.description}"
     if additional_context:
         system_prompt += f"\nAdditional Context:\n{additional_context}"
     messages = [

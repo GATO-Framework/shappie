@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  db:
+    image: mongo:latest
+    volumes:
+      - shappie_db:/data/db
+    ports:
+      - "27017:27017"
+
+  discord-bot:
+    depends_on:
+      - db
+      - api
+
+  api:
+    depends_on:
+      - db
+
+  dashboard:
+    volumes:
+      - ./src/dashboard:/app/dashboard
+    depends_on:
+      - db
+      - api
+
+volumes:
+  shappie_db:

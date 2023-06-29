@@ -3,6 +3,9 @@ AI powered discord bot
 
 ## Deployment
 
+> **NOTE:** In order to run Shappie, you'll need the appropriate environment variables.
+> These must go in a file called `.env.prod` in the same directory as the `docker-compose.yml`
+
 This application is packaged as a Docker container. You can use Docker Compose to manage the container.
 
 First, you need to install Docker and Docker Compose on your server if you haven't done so already. You can find instructions in the Docker documentation:
@@ -14,7 +17,7 @@ Once Docker and Docker Compose are installed, you can use the following commands
 
 ### First time deploy
 ```shell
-docker-compose up --build -d
+docker-compose -f docker-compose.yml up --build -d
 ```
 This command builds the Docker image for the application (if it hasn't been built already or if the Dockerfile has changed), and starts the application in the background.
 
@@ -29,7 +32,30 @@ When you want to update the application to the latest version, you can use the f
 
 ```shell
 docker-compose down
-docker-compose up --build -d
+docker-compose -f docker-compose.yml up --build -d
 ```
 
 This will stop the current application container, rebuild the Docker image, and start a new container with the latest version of the application.
+
+
+## Development
+
+### Recreate the Database
+```shell
+docker-compose stop db
+docker-compose rm db
+docker volume rm shappie_shappie-db
+docker-compose up --build -d db
+docker-compose logs db
+```
+
+## Architecture
+
+### Tools
+
+Tool functions should return a dictionary with various options:
+- `use_llm`: This tells the bot to use the LLM to respond to the message, this requires `context`.
+- `context`: Additional context passed to the LLM when responding after a using a tool.
+- `conent`: The content of the message if not using an LLM. This is added by the LLM if `use_llm` is `True`.
+- `image_url`: Creates an embed using the given image URL. Used for GIFs currently.
+- `url`: Creates an embed with the given URL. Used for `when2meet` right now.
