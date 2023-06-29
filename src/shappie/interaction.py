@@ -148,6 +148,9 @@ class Interaction:
     async def start(self):
         if self._store:
             self._state = await self._store.get_state()
+            mode_name = self._state.mode.name
+        else:
+            mode_name = "chatbot"
 
         self._channel_history = await self._get_channel_history()
 
@@ -156,5 +159,5 @@ class Interaction:
         if self._message.author.bot:
             return
 
-        mode = self._modes[self._state.mode.name]
+        mode = self._modes[mode_name]
         await mode()
