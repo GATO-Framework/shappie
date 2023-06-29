@@ -4,8 +4,7 @@ import typing
 import discord
 
 import api.storage
-import model.message
-import model.persona
+import model
 from . import llm, tool
 
 
@@ -13,18 +12,32 @@ class Interaction:
 
     def __init__(
             self,
+            bot: discord.ClientUser,
             message: discord.Message,
             store: api.storage.DataStore | None = None,
     ):
+        self._bot = bot
         self._message = message
         self._channel_history = []
-        self._persona = model.persona.DEFAULT
         self._store = store
+        self._state: model.State | None = None
+        self._modes = {
+            "chatbot": self._chatbot_mode,
+        }
 
         self._tools = tool.ToolCollection()
         self._keywords = set(
             filter(lambda k: k in self._message.content, tool.TOOLS))
         self._add_relevant_tools()
+
+    def _did_mention_bot(self) -> bool:
+        guild = self._message.guild
+        if guild:
+            bot_roles = set(guild.get_member(self._bot.id).roles)
+            did_mention_role = bot_roles.intersection(self._message.role_mentions)
+            did_mention_bot = self._bot in self._message.mentions
+            return did_mention_bot or did_mention_role
+        return False
 
     def should_respond(self):
         return len(self._keywords) > 0
@@ -47,7 +60,7 @@ class Interaction:
         if not self._store:
             return
 
-        message = model.message.Message(
+        message = model.Message(
             server=self._server_name(),
             channel=self._channel_name(),
             sender=self._message.author.name,
@@ -66,7 +79,7 @@ class Interaction:
         history = self._channel_history
         response = await llm.generate_response_message(
             messages=history,
-            persona=self._persona,
+            state=self._state,
             functions=self._tools.schema(),
         )
         function_call = response.get("function_call")
@@ -82,7 +95,7 @@ class Interaction:
         history = self._channel_history
         response = await llm.generate_response_message(
             messages=history,
-            persona=self._persona,
+            state=self._state,
         )
 
         return dict(content=response["content"][:2000])
@@ -96,7 +109,7 @@ class Interaction:
                 history = self._channel_history
                 response = await llm.generate_response_message(
                     messages=history,
-                    persona=self._persona,
+                    state=self._state,
                     additional_context=results.pop("context"),
                 )
                 content = response["content"]
@@ -114,14 +127,34 @@ class Interaction:
             embed.set_image(url=url)
             results["embed"] = embed
 
-        print(results)
         return results
 
-    async def respond_to_message(self, persona: str = "default") -> dict[str, str]:
-        if self._store:
-            self._persona = await self._store.get_persona(persona)
-        self._channel_history = await self._get_channel_history()
+    async def respond_to_message(self) -> dict[str, str]:
         if len(self._tools) > 0:
             return await self._respond_to_message_with_tools()
         else:
             return await self._respond_to_message_without_tools()
+
+    async def _chatbot_mode(self):
+        if self._did_mention_bot():
+            async with self._message.channel.typing():
+                results = await self.respond_to_message()
+            await self._message.reply(**results)
+        elif self.should_respond():
+            async with self._message.channel.typing():
+                results = await self.respond_to_message()
+            await self._message.channel.send(**results)
+
+    async def start(self):
+        if self._store:
+            self._state = await self._store.get_state()
+
+        self._channel_history = await self._get_channel_history()
+
+        await self.save_data()
+
+        if self._message.author.bot:
+            return
+
+        mode = self._modes[self._state.mode.name]
+        await mode()

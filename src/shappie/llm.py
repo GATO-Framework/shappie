@@ -4,7 +4,7 @@ import typing
 import discord
 import openai
 
-import model.persona
+import model
 
 
 def _format_chat_messages(
@@ -53,25 +53,27 @@ async def get_completion(
 
 async def generate_response_message(
         messages: list[discord.Message],
-        persona: model.persona.Persona,
+        state: model.State,
         additional_context: str = "",
         functions=None,
         temperature: float = 0.25,
         max_tokens: float = 500,
         lookback=10,
 ) -> dict[str, typing.Any]:
+    constitutions = []
+    for constitution in state.constitutions:
+        constitutions.extend(constitution.components)
+    components = "\n".join(constitutions)
     system_prompt = inspect.cleandoc(f"""
     You are a discord bot. 
     You will be given the last {lookback} messages for context, 
     however you are responding to {messages[-1].author.display_name}. 
     You will see [User: <username>] for each message, but this is just for context. 
     Your imperatives are three-fold
-    - Decrease suffering in the universe
-    - Increase prosperity in the universe
-    - Increase understanding in the universe
+    {components}
 
     Take on the following persona when responding to messages:
-    """) + f"\n{persona.description}"
+    """) + f"\n{state.persona.description}"
     if additional_context:
         system_prompt += f"\nAdditional Context:\n{additional_context}"
     messages = [

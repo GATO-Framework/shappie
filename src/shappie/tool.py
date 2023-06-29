@@ -51,7 +51,8 @@ def _get_paper_results(query: str):
         query=query,
         max_results=15,
     )
-    return [f"{paper.title} - {paper.entry_id} - {paper.authors}" for paper in result.results()]
+    return [f"{paper.title} - {paper.entry_id} - {paper.authors}"
+            for paper in result.results()]
 
 
 async def paper(query: str):

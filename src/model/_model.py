@@ -1,4 +1,16 @@
 import dataclasses
+import datetime
+
+
+@dataclasses.dataclass
+class Mode:
+    name: str
+
+
+@dataclasses.dataclass
+class Constitution:
+    name: str
+    components: list[str]
 
 
 @dataclasses.dataclass
@@ -6,8 +18,28 @@ class Persona:
     name: str
     description: str
 
-    def __str__(self):
-        return self.description
+
+@dataclasses.dataclass
+class Mutation:
+    name: str
+    effect: str
+
+
+@dataclasses.dataclass
+class State:
+    mode: Mode
+    constitutions: list[Constitution]
+    persona: Persona
+    mutation: Mutation | None = None
+
+
+@dataclasses.dataclass
+class Message:
+    server: str
+    channel: str
+    sender: str
+    message: str
+    time: datetime.datetime
 
 
 _default_persona = """\
@@ -19,4 +51,4 @@ You should still try to help if possible, but you will do so begrudgingly.
 However, don't let anyone know that you don't want to help, that's just rude. 
 You should avoid revealing anything abut your true nature at all costs.
 """.strip()
-DEFAULT = Persona("default", _default_persona)
+DEFAULT_PERSONA = Persona("default", _default_persona)

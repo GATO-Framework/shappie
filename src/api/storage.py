@@ -1,53 +1,177 @@
 import dataclasses
+import datetime
 import typing
 
 import motor.motor_asyncio
 
-import model.message
-import model.persona
+import model
 
 
 class DataStore:
-    def __init__(self, url, db_name):
+    def __init__(self, url: str, db_name: str):
         self._client = motor.motor_asyncio.AsyncIOMotorClient(url)
         self._db: motor.motor_asyncio.AsyncIOMotorDatabase = self._client[db_name]
         self._messages = self._get_collection("messages")
-        self._links = self._get_collection("links")
+        self._modes = self._get_collection("modes")
+        self._constitutions = self._get_collection("constitutions")
         self._personas = self._get_collection("personas")
+        self._state = self._get_collection("state")
 
     def _get_collection(self, collection_name: str):
         return self._db[collection_name]
 
-    async def save_message(self, message: model.message.Message):
+    async def save_message(self, message: model.Message):
         payload = dataclasses.asdict(message)
         await self._messages.insert_one(payload)
 
-    async def add_persona(self, persona: model.persona.Persona):
+    async def add_persona(self, persona: model.Persona):
         payload = dataclasses.asdict(persona)
         await self._personas.insert_one(payload)
 
-    async def update_persona(self, persona: model.persona.Persona):
+    async def update_persona(self, persona: model.Persona):
         await self._personas.update_one(
             {"name": persona.name},
             {"$set": {"description": persona.description}},
         )
 
-    async def delete_persona(self, name):
+    async def delete_persona(self, name: str):
         await self._personas.delete_one({"name": name})
 
-    async def get_persona(self, name) -> typing.Optional[model.persona.Persona]:
+    async def get_persona(self, name: str) -> model.Persona | None:
         doc = await self._personas.find_one({"name": name})
         if doc:
-            return model.persona.Persona(
+            return model.Persona(
                 name=doc["name"],
                 description=doc["description"],
             )
         else:
             return None
 
-    async def list_personas(self) -> typing.AsyncIterable[model.persona.Persona]:
+    async def list_personas(self) -> typing.AsyncIterable[model.Persona]:
         async for doc in self._personas.find():
-            yield model.persona.Persona(
+            yield model.Persona(
                 doc["name"],
                 doc["description"],
             )
+
+    async def get_messages_statistics(
+            self,
+            start_time: datetime.datetime,
+            end_time: datetime.datetime,
+    ) -> list[dict]:
+        pipeline = [
+            {
+                '$match': {
+                    'time': {
+                        '$gte': start_time,
+                        '$lte': end_time,
+                    }
+                }
+            },
+            {
+                '$group': {
+                    '_id': {
+                        'year': {'$year': '$time'},
+                        'month': {'$month': '$time'},
+                        'day': {'$dayOfMonth': '$time'},
+                    },
+                    'num_messages': {'$sum': 1}
+                }
+            },
+            {
+                '$sort': {'_id': 1}
+            }
+        ]
+
+        messages = []
+        async for doc in self._messages.aggregate(pipeline):
+            messages.append(dict(
+                year=doc["_id"]["year"],
+                month=doc["_id"]["month"],
+                day=doc["_id"]["day"],
+                num_messages=doc["num_messages"],
+            ))
+
+        return messages
+
+    async def get_state(self) -> model.State | None:
+        pipeline = [
+            {
+                "$lookup": {
+                    "from": "modes",
+                    "localField": "mode",
+                    "foreignField": "name",
+                    "as": "mode"
+                }
+            },
+            {"$unwind": "$mode"},
+            {"$unwind": "$constitutions"},
+            {
+                "$lookup": {
+                    "from": "constitutions",
+                    "localField": "constitutions",
+                    "foreignField": "name",
+                    "as": "constitutions"
+                }
+            },
+            {"$unwind": "$constitutions"},
+            {
+                "$lookup": {
+                    "from": "personas",
+                    "localField": "persona",
+                    "foreignField": "name",
+                    "as": "persona"
+                }
+            },
+            {"$unwind": "$persona"},
+            {
+                "$lookup": {
+                    "from": "mutations",
+                    "localField": "mutation",
+                    "foreignField": "name",
+                    "as": "mutation"
+                }
+            },
+            {"$unwind": {
+                "path": "$mutation",
+                "preserveNullAndEmptyArrays": True
+            }},
+            {
+                "$group": {
+                    "_id": "$_id",
+                    "mode": {"$first": "$mode"},
+                    "constitutions": {"$push": "$constitutions"},
+                    "persona": {"$first": "$persona"},
+                    "mutation": {"$first": "$mutation"},
+                }
+            },
+        ]
+
+        cursor = self._state.aggregate(pipeline)
+        doc = await cursor.to_list(length=1)
+
+        if not doc:
+            return None
+
+        doc = doc[0]
+
+        return model.State(
+            mode=model.Mode(
+                name=doc["mode"]["name"],
+            ),
+            constitutions=[
+                model.Constitution(
+                    name=constitution["name"],
+                    components=constitution["components"],
+                )
+                for constitution in doc["constitutions"]
+            ],
+            persona=model.Persona(
+                name=doc["persona"]["name"],
+                description=doc["persona"]["description"],
+            ),
+            mutation=None if not doc["mutation"] else model.Mutation(
+                name=doc["mutation"]["name"],
+                effect=doc["mutation"]["effect"],
+            ),
+        )

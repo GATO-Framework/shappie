@@ -7,5 +7,21 @@ services:
     ports:
       - "27017:27017"
 
+  discord-bot:
+    depends_on:
+      - db
+      - api
+
+  api:
+    depends_on:
+      - db
+
+  dashboard:
+    volumes:
+      - ./src/dashboard:/app/dashboard
+    depends_on:
+      - db
+      - api
+
 volumes:
   shappie_db:

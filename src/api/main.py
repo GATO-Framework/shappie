@@ -1,3 +1,4 @@
+import datetime
 import os
 import typing
 
@@ -7,7 +8,7 @@ from fastapi import FastAPI, Depends
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
-import model.persona
+import model
 from api import storage
 
 
@@ -32,6 +33,14 @@ class Persona:
 
 
 @strawberry.type
+class MessagesPerDay:
+    year: int
+    month: int
+    day: int
+    num_messages: int
+
+
+@strawberry.type
 class Query:
     @strawberry.field
     async def persona(self, info: Info, name: str) -> typing.Optional[Persona]:
@@ -48,13 +57,31 @@ class Query:
             async for doc in data_store.list_personas()
         ]
 
+    @strawberry.field
+    async def message_statistics(
+            self,
+            info: Info,
+            start_time: datetime.datetime,
+            end_time: datetime.datetime,
+    ) -> list[MessagesPerDay]:
+        data_store: storage.DataStore = info.context["data_store"]
+        stats = await data_store.get_messages_statistics(start_time, end_time)
+        return [
+            MessagesPerDay(
+                year=stat['year'],
+                month=stat['month'],
+                day=stat['day'],
+                num_messages=stat['num_messages'],
+            ) for stat in stats
+        ]
+
 
 @strawberry.type
 class Mutation:
     @strawberry.mutation
     async def add_persona(self, info: Info, name: str, description: str) -> Persona:
         data_store: storage.DataStore = info.context["data_store"]
-        persona = model.persona.Persona(name, description)
+        persona = model.Persona(name, description)
         await data_store.add_persona(persona)
         return persona
 
@@ -62,7 +89,7 @@ class Mutation:
     async def update_persona(self, info: Info, name: str,
                              description: str) -> typing.Optional[Persona]:
         data_store: storage.DataStore = info.context["data_store"]
-        persona = model.persona.Persona(name=name, description=description)
+        persona = model.Persona(name=name, description=description)
         await data_store.update_persona(persona)
         updated_persona = await data_store.get_persona(name)
         if updated_persona:
