@@ -154,7 +154,8 @@ class Interaction:
             constitutions = ",".join([c.name for c in self._state.constitutions])
             persona = self._state.persona.name
             activity = discord.Game(
-                name=f"Mode: {mode} | Const: {constitutions} | Persona: {persona}",
+                name=f"{mode.capitalize()} | Const: {constitutions} | "
+                     f"Persona: {persona}",
             )
             await self._client.change_presence(activity=activity)
             mode_name = self._state.mode.name
