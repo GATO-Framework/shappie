@@ -9,36 +9,6 @@ import typing
 import json
 
 
-def _did_mention_bot(message: discord.Message, bot_user: discord.ClientUser) -> bool:
-    guild = message.guild
-    if guild:
-        bot_roles = set(guild.get_member(bot_user.id).roles)
-        did_mention_role = bot_roles.intersection(message.role_mentions)
-        did_mention_bot = bot_user in message.mentions
-        return did_mention_bot or did_mention_role
-    return False
-
-
-async def _talking_to_bot(message: discord.Message) -> bool:
-    if any([x in message.content.lower() for x in [
-        'shappie',
-        'shappy',
-        'shapie',
-        'shappi',
-        'shapi',
-        'shapp',
-        'shapy',
-    ]]):
-        prompt = "This is a message sent by a user in a discord server. Shappie is a discord bot. Say 'Yes' if the message is talking *to* Shappie, and respond with 'No' if the message is talking *about* Shappie.\n\n" + message.content
-        response = (await llm.get_completion(
-            [{'role': 'user', 'content': prompt}],
-            temperature=0,
-            max_tokens=10,
-            logit_bias={5297: 10, 2949: 10},
-        ))['content']
-        return response.lower().startswith('y')
-
-
 class Interaction:
 
     def __init__(
@@ -59,15 +29,49 @@ class Interaction:
         self._add_relevant_tools()
 
     async def should_respond(self):
-        if _did_mention_bot(self._message, self.client.user):
+        if self._did_mention_bot():
             return True
         if len(self._keywords) > 0:
             return True
-        if await _talking_to_bot(self._message):
+        # If role called "Member" is not assigned to the user, return False at this point
+        member_role = discord.utils.get(
+            self._message.guild.roles, name="Member")
+        if member_role not in self._message.author.roles:
+            return False
+        if await self._talking_to_bot():
             return True
         if await self._is_conversational_continuation():
             return True
         return False
+
+    def _did_mention_bot(self) -> bool:
+        guild = self._message.guild
+        if guild:
+            bot_roles = set(guild.get_member(self.client.user.id).roles)
+            did_mention_role = bot_roles.intersection(
+                self._message.role_mentions)
+            did_mention_bot = self.client.user in self._message.mentions
+            return did_mention_bot or did_mention_role
+        return False
+
+    async def _talking_to_bot(self) -> bool:
+        if any([x in self._message.content.lower() for x in [
+            'shappie',
+            'shappy',
+            'shapie',
+            'shappi',
+            'shapi',
+            'shapp',
+            'shapy',
+        ]]):
+            prompt = "This is a message sent by a user in a discord server. Shappie is a discord bot. Say 'Yes' if the message is talking *to* Shappie, and respond with 'No' if the message is talking *about* Shappie.\n\n" + self._message.content
+            response = (await llm.get_completion(
+                [{'role': 'user', 'content': prompt}],
+                temperature=0,
+                max_tokens=10,
+                logit_bias={5297: 10, 2949: 10},
+            ))['content']
+            return response.lower().startswith('y')
 
     async def _is_conversational_continuation(self) -> bool:
         message = self._message
