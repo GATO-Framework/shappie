@@ -15,7 +15,7 @@ def _format_chat_messages(
         is_bot = message.author.bot
         username = message.author.display_name
         role = "assistant" if is_bot else "user"
-        content = message.content if is_bot else f"{message.content} [User: <{username}>]"
+        content = message.content if is_bot else f"{message.content} [User: {username}]"
 
         chat_messages.append({"role": role, "content": content})
 
