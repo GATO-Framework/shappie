@@ -26,12 +26,13 @@ class DataStore:
 
     async def get_mode(self, name: str) -> model.Mode | None:
         doc = await self._modes.find_one({"name": name})
-        if doc:
-            return model.Mode(
+        return (
+            model.Mode(
                 name=doc["name"],
             )
-        else:
-            return None
+            if doc
+            else None
+        )
 
     async def list_modes(self) -> typing.AsyncIterable[model.Mode]:
         async for doc in self._modes.find():

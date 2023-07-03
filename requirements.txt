@@ -8,3 +8,7 @@ pandas~=2.0.2
 streamlit==1.24.0
 strawberry-graphql[fastapi]==0.190.0
 uvicorn[standard]~=0.22.0
+pypdf
+Chroma
+unstructured
+playwright

@@ -18,7 +18,7 @@ async def doot():
     ]
     gif = random.choice(choices)
     gif_url = f"https://media.giphy.com/media/{gif}/giphy.gif"
-    context = f"Say something silly like 'doot doot the dootly doot 🔥'"
+    context = "Say something silly like 'doot doot the dootly doot 🔥'"
     return dict(
         context=context,
         use_llm=True,
@@ -37,8 +37,7 @@ async def when_to_meet():
 
 async def get_layer_info(layer: int):
     path = pathlib.Path("data") / "layers" / f"layer-{layer}.md"
-    with open(path) as file:
-        context = file.read()
+    context = pathlib.Path(path).read_text()
     return dict(
         context=context,
         use_llm=True,
@@ -85,10 +84,7 @@ class ToolCollection:
         path = pathlib.Path(__file__).parent / "tool-schema.json"
         with open(path) as file:
             data = json.load(file)
-        tool_schema = []
-        for tool in set(self._tools.values()):
-            tool_schema.append(data[tool.__name__])
-        return tool_schema
+        return [data[tool.__name__] for tool in set(self._tools.values())]
 
     def add_tool(self, keyword: str):
         tool = TOOLS[keyword]

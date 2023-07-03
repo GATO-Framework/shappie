@@ -5,7 +5,8 @@ import discord
 
 import api.storage
 import model
-from . import llm, tool
+from .tools import tool
+from . import llm
 
 
 class Interaction:

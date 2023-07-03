@@ -1,5 +1,4 @@
 import datetime
-
 import httpx as httpx
 import pandas
 import streamlit
@@ -43,8 +42,7 @@ def set_state(mode: str, constitutions: list[str], persona: str):
     }}
     """
     response = _send_graphql_request(query)
-    data = response["data"]
-    return data
+    return response["data"]
 
 
 @streamlit.cache_data(ttl=10)
@@ -154,9 +152,7 @@ def main():
         start_time = datetime.datetime.now() - datetime.timedelta(days=30)
         end_time = datetime.datetime.now()
 
-        message_statistics = get_engagement_metrics(start_time, end_time)
-
-        if message_statistics:
+        if message_statistics := get_engagement_metrics(start_time, end_time):
             cols = streamlit.columns(3)
             with cols[0]:
                 streamlit.metric(

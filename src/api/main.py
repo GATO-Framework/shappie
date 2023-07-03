@@ -146,10 +146,7 @@ class Mutation:
         persona = model.Persona(name=name, description=description)
         await data_store.update_persona(persona)
         updated_persona = await data_store.get_persona(name)
-        if updated_persona:
-            return updated_persona
-        else:
-            return None
+        return updated_persona or None
 
     @strawberry.mutation
     async def update_state(self, info: Info, mode: str, constitutions: list[str],
@@ -157,10 +154,7 @@ class Mutation:
         data_store: storage.DataStore = info.context["data_store"]
         await data_store.update_state(mode, constitutions, persona)
         updated_state = await data_store.get_state()
-        if updated_state:
-            return updated_state
-        else:
-            return None
+        return updated_state or None
 
 
 app = FastAPI()

@@ -59,3 +59,11 @@ Tool functions should return a dictionary with various options:
 - `conent`: The content of the message if not using an LLM. This is added by the LLM if `use_llm` is `True`.
 - `image_url`: Creates an embed using the given image URL. Used for GIFs currently.
 - `url`: Creates an embed with the given URL. Used for `when2meet` right now.
+
+### Updates
+July 7th
+- Added vectorstore, webscraper, pdf and text loaders along with vectorstore retriever.
+- Added install files for easier setup.
+- Minor refactoring when my ocd got to me.
+- Filled out the init files so packages should be functioning normally now.
+-updated .env to example.env
