@@ -6,7 +6,6 @@ import motor.motor_asyncio
 
 import model
 
-
 class DataStore:
     def __init__(self, url: str, db_name: str):
         self._client = motor.motor_asyncio.AsyncIOMotorClient(url)
@@ -203,10 +202,10 @@ class DataStore:
                 name=doc["persona"]["name"],
                 description=doc["persona"]["description"],
             ),
-            mutation=None if not doc["mutation"] else model.Mutation(
-                name=doc["mutation"]["name"],
-                effect=doc["mutation"]["effect"],
-            ),
+            mutation=model.Mutation(
+                                     name=doc["mutation"]["name"],
+                                     effect=doc["mutation"]["effect"],
+                                 ) if doc["mutation"] else None,
         )
 
     async def update_state(self, mode: str, constitutions: list[str], persona: str):

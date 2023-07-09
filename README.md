@@ -67,3 +67,8 @@ July 7th
 - Minor refactoring when my ocd got to me.
 - Filled out the init files so packages should be functioning normally now.
 -updated .env to example.env
+
+July 8th
+- linked up the vector data base and provided it as a tool. just data consumption to test it out.
+- added socratic bot prompt. if it works ill add the works of Socrates to the vectordb
+- planning to add the seed and data infromation to the vector database as well.

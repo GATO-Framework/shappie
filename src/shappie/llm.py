@@ -6,7 +6,6 @@ import openai
 
 import model
 
-
 def _format_chat_messages(
         messages: typing.Iterable[discord.Message],
 ) -> typing.Iterable[dict[str, str]]:
@@ -20,7 +19,6 @@ def _format_chat_messages(
         chat_messages.append({"role": role, "content": content})
 
     return chat_messages
-
 
 async def get_completion(
         messages: list[dict[str, str]],
@@ -50,7 +48,6 @@ async def get_completion(
 
     return response["choices"][0]["message"]
 
-
 async def generate_response_message(
         messages: list[discord.Message],
         state: model.State,
@@ -65,10 +62,10 @@ async def generate_response_message(
         constitutions.extend(constitution.components)
     components = "\n".join(constitutions)
     system_prompt = inspect.cleandoc(f"""
-    You are a discord bot. 
-    You will be given the last {lookback} messages for context, 
-    however you are responding to {messages[-1].author.display_name}. 
-    You will see [User: <username>] for each message, but this is just for context. 
+    You are a discord bot.
+    You will be given the last {lookback} messages for context,
+    however you are responding to {messages[-1].author.display_name}.
+    You will see [User: <username>] for each message, but this is just for context.
     Your imperatives are three-fold
     {components}
 

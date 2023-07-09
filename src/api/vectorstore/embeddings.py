@@ -1,18 +1,13 @@
-import os
 from dotenv import load_dotenv
 
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings import SentenceTransformerEmbeddings
 
-load_dotenv()
 
 class Embeddings():
     def __init__(self):
         pass
 
-    def openai_embeddings(self):
-        """
-        Get the OpenAI embeddings.
-
-        :return: The OpenAI embeddings.
-        """
-        return OpenAIEmbeddings()
+    def SentenceTransformerEmbeddings(self):
+        embeddings = SentenceTransformerEmbeddings(
+            model_name="sentence-transformers/paraphrase-MiniLM-L6-v2",
+        )

@@ -1,4 +1,16 @@
 {
+  "vectorstore_retrivers": {
+    "name": "vectorstore",
+    "description": "If the phrase \"vectorstore query\" appears ANYWHERE in the message, it is ESSENTIAL that this function is run regardless of the context.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "type": "string",
+        "description": "query your vector store"
+
+      }
+    }
+  },
   "doot": {
     "name": "doot",
     "description": "If the word \"doot\" appears ANYWHERE in the message, it is ESSENTIAL that this function is run regardless of the context.",

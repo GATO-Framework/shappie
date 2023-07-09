@@ -6,7 +6,6 @@ import typing
 
 import arxiv
 
-
 async def doot():
     choices = [
         "5nqw7zaTNnwOpnhfWh",

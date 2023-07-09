@@ -8,7 +8,6 @@ import model
 from .tools import tool
 from . import llm
 
-
 class Interaction:
 
     def __init__(
@@ -33,8 +32,7 @@ class Interaction:
         self._add_relevant_tools()
 
     def _did_mention_bot(self) -> bool:
-        guild = self._message.guild
-        if guild:
+        if guild := self._message.guild:
             bot_roles = set(guild.get_member(self._client.user.id).roles)
             did_mention_role = bot_roles.intersection(self._message.role_mentions)
             did_mention_bot = self._client.user in self._message.mentions
@@ -54,9 +52,7 @@ class Interaction:
         return "dm" if is_dm else channel.name
 
     def _server_name(self):
-        if self._message.guild:
-            return self._message.guild.name
-        return None
+        return self._message.guild.name if self._message.guild else None
 
     async def save_data(self):
         if not self._store:
@@ -84,8 +80,7 @@ class Interaction:
             state=self._state,
             functions=self._tools.schema(),
         )
-        function_call = response.get("function_call")
-        if function_call:
+        if function_call := response.get("function_call"):
             tool_name = function_call["name"]
             tool_args = json.loads(function_call["arguments"])
 
