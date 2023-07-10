@@ -32,13 +32,15 @@ class Interaction:
         self._add_relevant_tools()
 
     def _did_mention_bot(self) -> bool:
+        did_mention_bot = self._client.user in self._message.mentions
+
         guild = self._message.guild
         if guild:
             bot_roles = set(guild.get_member(self._client.user.id).roles)
             did_mention_role = bot_roles.intersection(self._message.role_mentions)
-            did_mention_bot = self._client.user in self._message.mentions
             return did_mention_bot or did_mention_role
-        return False
+
+        return did_mention_bot
 
     def should_respond(self):
         return len(self._keywords) > 0
