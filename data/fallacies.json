@@ -1,0 +1,82 @@
+{
+  "Ad Hominem": {
+    "explanation": "This is when an argument is directed at a person rather than the position they are maintaining.",
+    "socratic_question": "Can you provide evidence that addresses the argument instead of the individual?"
+  },
+  "Slippery Slope": {
+    "explanation": "This is an assertion that a particular event will trigger a series of catastrophic events, without evidence.",
+    "socratic_question": "What evidence is there that these consequences will happen as a direct result of the initial action?"
+  },
+  "Appeal to Authority": {
+    "explanation": "Appeal to Authority involves using the opinion of an authority figure as evidence, without critically evaluating the quality of the argument.",
+    "socratic_question": "Is the authority figure cited an expert in the relevant field? Are there other experts who hold different opinions?"
+  },
+  "Hasty Generalization": {
+    "explanation": "Hasty Generalization involves making a broad conclusion based on a small or unrepresentative sample size.",
+    "socratic_question": "Is the sample size used to make the generalization representative and sufficiently large?"
+  },
+  "Circular Reasoning": {
+    "explanation": "Circular Reasoning involves using the conclusion of an argument as a premise within the same argument.",
+    "socratic_question": "Can the argument be supported without relying on its own conclusion as evidence?"
+  },
+  "Red Herring": {
+    "explanation": "Red Herring involves introducing irrelevant information into an argument in an attempt to distract from the real issue.",
+    "socratic_question": "How is the information you provided relevant to the argument at hand?"
+  },
+  "Straw Man": {
+    "explanation": "Straw Man involves misrepresenting someone's argument to make it easier to attack.",
+    "socratic_question": "Have you accurately represented the other person's argument? Can you address their actual position?"
+  },
+  "False Dilemma": {
+    "explanation": "False Dilemma involves presenting two options as if they are the only possibilities, when in fact there may be other options.",
+    "socratic_question": "Are there other options or possibilities that have not been considered?"
+  },
+  "Appeal to Ignorance": {
+    "explanation": "Appeal to Ignorance involves asserting that something must be true because it has not been proven false, or vice versa.",
+    "socratic_question": "Is there evidence to support the claim, or is the argument relying on a lack of evidence to the contrary?"
+  },
+  "Bandwagon Fallacy": {
+    "explanation": "Bandwagon Fallacy involves accepting an argument as true simply because it is popular.",
+    "socratic_question": "Is the popularity of an idea necessarily indicative of its validity? Are there logical reasons to support the claim?"
+  },
+  "Tu Quoque": {
+    "explanation": "Tu Quoque involves accusing someone of hypocrisy as a way to dismiss their argument, rather than addressing the argument itself.",
+    "socratic_question": "Even if someone is being hypocritical, does that necessarily invalidate their argument?"
+  },
+  "Genetic Fallacy": {
+    "explanation": "Genetic Fallacy involves judging something as good or bad based on where it comes from, or from whom it comes.",
+    "socratic_question": "Is the origin of the information the only factor that determines its validity?"
+  },
+  "Black-or-White Fallacy": {
+    "explanation": "Black-or-White Fallacy involves presenting two options as if they are the only possibilities, when in fact there may be other options. This is similar to False Dilemma.",
+    "socratic_question": "Are there other options or possibilities that have not been considered?"
+  },
+  "Begging the Question": {
+    "explanation": "Begging the Question involves making an argument that assumes the conclusion as one of the premises, making it circular.",
+    "socratic_question": "Can the argument be supported without assuming the conclusion is true?"
+  },
+  "Appeal to Emotion": {
+    "explanation": "Appeal to Emotion involves manipulating emotions in order to win an argument, especially in the absence of factual evidence.",
+    "socratic_question": "What factual evidence supports the argument, aside from emotional appeals?"
+  },
+  "Gambler’s Fallacy": {
+    "explanation": "Gambler’s Fallacy involves believing that past events can influence the probability of future events in random processes.",
+    "socratic_question": "Is there a logical reason to believe that past events should affect the likelihood of what will happen in the future in this case?"
+  },
+  "Composition Fallacy": {
+    "explanation": "Composition Fallacy involves assuming that what is true for a part is also true for the whole.",
+    "socratic_question": "Is it necessarily the case that what applies to the part must apply to the whole?"
+  },
+  "Division Fallacy": {
+    "explanation": "Division Fallacy involves assuming that what is true for the whole is also true for the parts.",
+    "socratic_question": "Is it necessarily the case that what applies to the whole must apply to each part?"
+  },
+  "No True Scotsman": {
+    "explanation": "No True Scotsman involves making an appeal to purity as a way to dismiss relevant criticisms or flaws in an argument.",
+    "socratic_question": "Is the definition being used to exclude counterexamples too narrow or unrealistic?"
+  },
+  "Post Hoc Ergo Propter Hoc": {
+    "explanation": "Post Hoc Ergo Propter Hoc involves claiming that because one event happened after another, the first event caused the second.",
+    "socratic_question": "Is there evidence to support the claim that the first event caused the second, beyond just the order in which they occurred?"
+  }
+}

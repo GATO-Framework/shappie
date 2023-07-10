@@ -1,3 +1,5 @@
+import json
+import logging
 import os
 import typing
 
@@ -5,7 +7,7 @@ import discord
 import openai
 
 import api.storage
-from . import interaction
+from . import interaction, llm
 
 MONGO_URI = os.environ.get("MONGO_URI")
 MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME")
@@ -25,6 +27,31 @@ class ShappieClient(discord.Client):
 
     async def setup_hook(self):
         await self.tree.sync()
+
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        logging.warning(payload.emoji)
+        if str(payload.emoji) == "💩":
+            logging.warning(payload.emoji)
+            channel = self.get_channel(payload.channel_id)
+            message = await channel.fetch_message(payload.message_id)
+
+            with open("data/fallacies.json") as file:
+                fallacies = json.load(file)
+
+            state = await self._store.get_state()
+            content = message.content
+            message.content = f"Determine if any logical fallacies are present " \
+                              f"in this message: \"{content}\".\n" \
+                              f"If any are present, explain which one(s) and why. " \
+                              f"Additionally, ask a socratic question to continue " \
+                              f"the dialogue by addressing the fallacious argument."
+            async with channel.typing():
+                response = await llm.generate_response_message(
+                    messages=[message],
+                    state=state,
+                    additional_context=fallacies,
+                )
+            await message.reply(response["content"])
 
     async def on_message(self, message: discord.Message):
         bot_interaction = interaction.Interaction(self, message, self._store)
