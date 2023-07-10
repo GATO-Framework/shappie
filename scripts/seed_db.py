@@ -6,10 +6,14 @@ import motor.motor_asyncio
 
 class DatabaseSeeder:
     def __init__(self, url: str, db_name: str, layer_file: str,
+                 state_file: str, modes_file: str, constitutions_file: str,
                  persona_file: str, message_file: str):
         self._client = motor.motor_asyncio.AsyncIOMotorClient(url)
         self._db = self._client[db_name]
         self._layer_file = layer_file
+        self._state_file = state_file
+        self._modes_file = modes_file
+        self._constitutions_file = constitutions_file
         self._persona_file = persona_file
         self._message_file = message_file
 
@@ -19,6 +23,9 @@ class DatabaseSeeder:
             return
 
         await self._clear_database()
+        await self._insert_state()
+        await self._insert_modes()
+        await self._insert_constitutions()
         await self._insert_personas()
         await self._insert_messages()
         await self._insert_layers()
@@ -29,6 +36,21 @@ class DatabaseSeeder:
 
     async def _needs_seeding(self) -> bool:
         return not await self._db["personas"].find_one()
+
+    async def _insert_state(self):
+        with open(self._state_file, 'r') as f:
+            state = json.load(f)
+            await self._db['state'].insert_many(state)
+
+    async def _insert_modes(self):
+        with open(self._modes_file, 'r') as f:
+            modes = json.load(f)
+            await self._db['modes'].insert_many(modes)
+
+    async def _insert_constitutions(self):
+        with open(self._constitutions_file, 'r') as f:
+            constitutions = json.load(f)
+            await self._db['constitutions'].insert_many(constitutions)
 
     async def _insert_personas(self):
         with open(self._persona_file, 'r') as f:
@@ -51,6 +73,9 @@ def seed_db():
     seeder = DatabaseSeeder(
         url="mongodb://localhost:27017",
         db_name="GATO",
+        state_file="../data/seed/GATO.state.json",
+        modes_file="../data/seed/GATO.modes.json",
+        constitutions_file="../data/seed/GATO.constitutions.json",
         persona_file="../data/seed/GATO.personas.json",
         message_file="../data/seed/GATO.messages.json",
         layer_file="../data/seed/GATO.layer-info.json",
