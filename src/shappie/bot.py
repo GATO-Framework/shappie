@@ -29,7 +29,6 @@ class ShappieClient(discord.Client):
         await self.tree.sync()
 
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        logging.warning(payload.emoji)
         if str(payload.emoji) == "💩":
             logging.warning(payload.emoji)
             channel = self.get_channel(payload.channel_id)
