@@ -151,7 +151,7 @@ class Interaction:
             for message in self._channel_history:
                 if message.author == self._client.user:
                     return
-            await self._message.reply("Please use the <#1125813800151547974> channel to talk to me.")
+            await self._message.reply("Don't you know? I live in <#1125813800151547974>, not here. 🙄")
             return
         async with self._message.channel.typing():
             results = await self.respond_to_message()
