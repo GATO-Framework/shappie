@@ -37,7 +37,8 @@ class Interaction:
         guild = self._message.guild
         if guild:
             bot_roles = set(guild.get_member(self._client.user.id).roles)
-            did_mention_role = bot_roles.intersection(self._message.role_mentions)
+            did_mention_role = bot_roles.intersection(
+                self._message.role_mentions)
             return did_mention_bot or did_mention_role
 
         return did_mention_bot
@@ -153,7 +154,8 @@ class Interaction:
             self._state = await self._store.get_state()
             mode = self._state.mode.name
 
-            constitutions = ",".join([c.name for c in self._state.constitutions])
+            constitutions = ",".join(
+                [c.name for c in self._state.constitutions])
             persona = self._state.persona.name
             activity = discord.Game(
                 name=f"{mode.capitalize()} | Const: {constitutions} | "
@@ -169,6 +171,10 @@ class Interaction:
         await self.save_data()
 
         if self._message.author.bot:
+            return
+
+        # check if we have permission to send messages in the channel
+        if not self._message.channel.permissions_for(self._message.guild.me).send_messages:
             return
 
         mode = self._modes[mode_name]
