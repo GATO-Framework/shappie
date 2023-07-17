@@ -140,13 +140,24 @@ class Interaction:
             return await self._respond_to_message_without_tools()
 
     async def _chatbot_mode(self):
-        if self._did_mention_bot():
-            async with self._message.channel.typing():
-                results = await self.respond_to_message()
+        mention = self._did_mention_bot()
+        should_respond = self.should_respond()
+        if not mention and not should_respond:
+            return
+        if self._message.channel.id != 1125813800151547974 and self._message.guild.id == 1099335575745613835:
+            if not mention:
+                return
+            # check channel history for a message from the bot
+            for message in self._channel_history:
+                if message.author == self._client.user:
+                    return
+            await self._message.reply("Please use the <#1125813800151547974> channel to talk to me.")
+            return
+        async with self._message.channel.typing():
+            results = await self.respond_to_message()
+        if mention:
             await self._message.reply(**results)
-        elif self.should_respond():
-            async with self._message.channel.typing():
-                results = await self.respond_to_message()
+        else:
             await self._message.channel.send(**results)
 
     async def start(self):
