@@ -144,15 +144,15 @@ class Interaction:
             return await self._respond_to_message_without_tools()
 
     async def _chatbot_mode(self):
-        was_bot_mentioned = self._did_mention_bot()
+        did_mention_bot = self._did_mention_bot()
         should_bot_respond = self.should_respond()
-        if not was_bot_mentioned and not should_bot_respond:
+        if not did_mention_bot and not should_bot_respond:
             return
         access_config = self._channel_access_configs.get(
             self._message.guild.id)
         if access_config:
             if self._message.channel.id not in access_config["allowed_channels"]:
-                if not was_bot_mentioned:
+                if not did_mention_bot:
                     return
                 # check channel history for a message from the bot
                 for message in self._channel_history:
@@ -162,7 +162,7 @@ class Interaction:
                 return
         async with self._message.channel.typing():
             results = await self.respond_to_message()
-        if was_bot_mentioned:
+        if did_mention_bot:
             await self._message.reply(**results)
         else:
             await self._message.channel.send(**results)
