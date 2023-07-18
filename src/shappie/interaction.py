@@ -6,6 +6,7 @@ import discord
 import api.storage
 import model
 from . import llm, tool
+import json
 
 
 class Interaction:
@@ -15,12 +16,15 @@ class Interaction:
             client: discord.Client,
             message: discord.Message,
             store: api.storage.DataStore | None = None,
+            channel_access_configs: dict[int,
+                                         dict[str, list[int] | int]] | None = None,
     ):
         self._client = client
         self._message = message
         self._channel_history = []
         self._store = store
         self._state: model.State | None = None
+        self._channel_access_configs = channel_access_configs or {}
         self._modes = {
             "chatbot": self._chatbot_mode,
             "test": lambda: None,
@@ -140,22 +144,25 @@ class Interaction:
             return await self._respond_to_message_without_tools()
 
     async def _chatbot_mode(self):
-        mention = self._did_mention_bot()
-        should_respond = self.should_respond()
-        if not mention and not should_respond:
+        was_bot_mentioned = self._did_mention_bot()
+        should_bot_respond = self.should_respond()
+        if not was_bot_mentioned and not should_bot_respond:
             return
-        if self._message.channel.id != 1125813800151547974 and self._message.guild.id == 1099335575745613835:
-            if not mention:
-                return
-            # check channel history for a message from the bot
-            for message in self._channel_history:
-                if message.author == self._client.user:
+        access_config = self._channel_access_configs.get(
+            self._message.guild.id)
+        if access_config:
+            if self._message.channel.id not in access_config["allowed_channels"]:
+                if not was_bot_mentioned:
                     return
-            await self._message.reply("Don't you know? I live in <#1125813800151547974>, not here. 🙄")
-            return
+                # check channel history for a message from the bot
+                for message in self._channel_history:
+                    if message.author == self._client.user:
+                        return
+                await self._message.reply(f"Don't you know? I live in <#{access_config['reference_channel']}>, not here. 🙄")
+                return
         async with self._message.channel.typing():
             results = await self.respond_to_message()
-        if mention:
+        if was_bot_mentioned:
             await self._message.reply(**results)
         else:
             await self._message.channel.send(**results)
