@@ -6,6 +6,7 @@ import discord
 import api.storage
 import model
 from . import llm, tool
+import json
 
 
 class Interaction:
@@ -15,12 +16,15 @@ class Interaction:
             client: discord.Client,
             message: discord.Message,
             store: api.storage.DataStore | None = None,
+            channel_access_configs: dict[int,
+                                         dict[str, list[int] | int]] | None = None,
     ):
         self._client = client
         self._message = message
         self._channel_history = []
         self._store = store
         self._state: model.State | None = None
+        self._channel_access_configs = channel_access_configs or {}
         self._modes = {
             "chatbot": self._chatbot_mode,
             "test": lambda: None,
@@ -37,7 +41,8 @@ class Interaction:
         guild = self._message.guild
         if guild:
             bot_roles = set(guild.get_member(self._client.user.id).roles)
-            did_mention_role = bot_roles.intersection(self._message.role_mentions)
+            did_mention_role = bot_roles.intersection(
+                self._message.role_mentions)
             return did_mention_bot or did_mention_role
 
         return did_mention_bot
@@ -139,13 +144,27 @@ class Interaction:
             return await self._respond_to_message_without_tools()
 
     async def _chatbot_mode(self):
-        if self._did_mention_bot():
-            async with self._message.channel.typing():
-                results = await self.respond_to_message()
+        did_mention_bot = self._did_mention_bot()
+        should_bot_respond = self.should_respond()
+        if not did_mention_bot and not should_bot_respond:
+            return
+        access_config = self._channel_access_configs.get(
+            self._message.guild.id)
+        if access_config:
+            if self._message.channel.id not in access_config["allowed_channels"]:
+                if not did_mention_bot:
+                    return
+                # check channel history for a message from the bot
+                for message in self._channel_history:
+                    if message.author == self._client.user:
+                        return
+                await self._message.reply(f"Don't you know? I live in <#{access_config['reference_channel']}>, not here. 🙄")
+                return
+        async with self._message.channel.typing():
+            results = await self.respond_to_message()
+        if did_mention_bot:
             await self._message.reply(**results)
-        elif self.should_respond():
-            async with self._message.channel.typing():
-                results = await self.respond_to_message()
+        else:
             await self._message.channel.send(**results)
 
     async def start(self):
@@ -153,7 +172,8 @@ class Interaction:
             self._state = await self._store.get_state()
             mode = self._state.mode.name
 
-            constitutions = ",".join([c.name for c in self._state.constitutions])
+            constitutions = ",".join(
+                [c.name for c in self._state.constitutions])
             persona = self._state.persona.name
             activity = discord.Game(
                 name=f"{mode.capitalize()} | Const: {constitutions} | "
@@ -169,6 +189,10 @@ class Interaction:
         await self.save_data()
 
         if self._message.author.bot:
+            return
+
+        # check if we have permission to send messages in the channel
+        if not self._message.channel.permissions_for(self._message.guild.me).send_messages:
             return
 
         mode = self._modes[mode_name]

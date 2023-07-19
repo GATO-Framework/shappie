@@ -25,6 +25,13 @@ class ShappieClient(discord.Client):
         if PERSIST:
             self._store = api.storage.DataStore(MONGO_URI, MONGO_DB_NAME)
 
+        self._channel_access_config = {}
+        with open("configs/channel_access.json") as f:
+            # don't know best place to put this
+            for guild in json.load(f):
+                self._channel_access_config[guild["guild_id"]] = {
+                    "allowed_channels": guild["allowed_channels"], "reference_channel": guild["reference_channel"]}
+
     async def setup_hook(self):
         await self.tree.sync()
 
@@ -53,5 +60,6 @@ class ShappieClient(discord.Client):
             await message.reply(response["content"])
 
     async def on_message(self, message: discord.Message):
-        bot_interaction = interaction.Interaction(self, message, self._store)
+        bot_interaction = interaction.Interaction(
+            self, message, self._store, self._channel_access_config)
         await bot_interaction.start()
