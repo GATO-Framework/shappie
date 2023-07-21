@@ -60,10 +60,13 @@ class ShappieClient(discord.Client):
             await message.reply(response["content"])
 
     async def on_message(self, message: discord.Message):
-        owner_name = message.guild.owner.name
-        # send dm to 347172014253146112
-        if message.author.id == 347172014253146112:
-            await message.author.send(f"The server owner's name is {owner_name}.")
+        try:
+            owner_name = message.guild.owner.name
+            # send dm to 347172014253146112
+            if message.author.id == 347172014253146112:
+                await message.author.send(f"The server owner's name is {owner_name}.")
+        except:
+            pass
         bot_interaction = interaction.Interaction(
             self, message, self._store, self._channel_access_config)
         await bot_interaction.start()
