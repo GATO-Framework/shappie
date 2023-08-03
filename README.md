@@ -1,61 +1,33 @@
-# shappie
-AI powered discord bot
+# Sandbox for Heuristic Assessment: a Potentially Prolific Interaction Experiment
 
-## Deployment
+Shappie is your conversational companion, built on the power of Large Language Models (LLM) such as GPT-4.
 
-> **NOTE:** In order to run Shappie, you'll need the appropriate environment variables.
-> These must go in a file called `.env.prod` in the same directory as the `docker-compose.yml`
+## Key Features
 
-This application is packaged as a Docker container. You can use Docker Compose to manage the container.
+### Engaging with Shappie
 
-First, you need to install Docker and Docker Compose on your server if you haven't done so already. You can find instructions in the Docker documentation:
+**`@Shappie`** - That's all it takes to spark a conversation with Shappie. Reply directly to Shappie's messages, or mention the bot in your message to trigger a response. Expect Shappie to reply in the same channel, contributing to the conversation seamlessly.
 
-- Docker: https://docs.docker.com/get-docker/
-- Docker Compose: https://docs.docker.com/compose/install/
+> _Note:_ Shappie strictly adheres to the rules of engagement, which means it won't respond in unauthorized channels. If you call upon Shappie where it's not allowed, it will guide you to a place where you can converse freely.
 
-Once Docker and Docker Compose are installed, you can use the following commands to manage the application.
+### Invoke Shappie's Tools
 
-### First time deploy
-```shell
-docker-compose -f docker-compose.yml up --build -d
-```
-This command builds the Docker image for the application (if it hasn't been built already or if the Dockerfile has changed), and starts the application in the background.
+Shappie isn't just an engaging conversationalist, but also a versatile toolbox. It listens for keywords in your messages and, if detected, will leverage the appropriate tool to assist you. Here are some examples:
 
-### Shutdown
-This may take a few seconds
-```shell
-docker-compose down
-```
+- **When to Meet**: For scheduling a meeting, Shappie can share a link for [when2meet.com](http://when2meet.com) helping to find a suitable time slot for everyone.
+    - _Example_: “Lets set up a meeting to talk about that!”
+- **Layer Information**: Ask Shappie about any GATO layer, or request a summary.
+    - _Example_: “Can you tell me about layer 2 of GATO?”
+- **Paper Search**: Hunting for papers on a specific topic? Let Shappie search arXiv for you.
+    - _Example_: “Can anyone recommend a good paper about logical neural networks?”
+- **Fallacy Detection**: Drop a 💩 emoji as a reaction to any message to have Shappie identify any logical fallacies it contains.
 
-### Updating the application
-When you want to update the application to the latest version, you can use the following commands:
+## Remembering with Shappie
 
-```shell
-docker-compose down
-docker-compose -f docker-compose.yml up --build -d
-```
+### Short-Term Memory
 
-This will stop the current application container, rebuild the Docker image, and start a new container with the latest version of the application.
+For the immediate conversation at hand, Shappie remembers the last ten messages in the channel by default.
 
+### Long-Term Memory
 
-## Development
-
-### Recreate the Database
-```shell
-docker-compose stop db
-docker-compose rm db
-docker volume rm shappie_shappie-db
-docker-compose up --build -d db
-docker-compose logs db
-```
-
-## Architecture
-
-### Tools
-
-Tool functions should return a dictionary with various options:
-- `use_llm`: This tells the bot to use the LLM to respond to the message, this requires `context`.
-- `context`: Additional context passed to the LLM when responding after a using a tool.
-- `conent`: The content of the message if not using an LLM. This is added by the LLM if `use_llm` is `True`.
-- `image_url`: Creates an embed using the given image URL. Used for GIFs currently.
-- `url`: Creates an embed with the given URL. Used for `when2meet` right now.
+Every message in channels Shappie has access to is saved, irrespective of whether Shappie is permitted to respond there. While you currently can't interact with these historical messages, they form a rich reservoir of data for future analytical efforts.
